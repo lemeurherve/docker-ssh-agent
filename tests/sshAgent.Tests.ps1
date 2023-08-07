@@ -1,7 +1,7 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
 $global:AGENT_IMAGE = Get-EnvOrDefault 'AGENT_IMAGE' ''
-$global:IMAGE_FOLDER = Get-EnvOrDefault 'IMAGE_FOLDER' ''
+$global:BUILD_CONTEXT = Get-EnvOrDefault 'BUILD_CONTEXT' ''
 
 $items = $global:AGENT_IMAGE.Split("-")
 
@@ -175,7 +175,7 @@ Describe "[$global:AGENT_IMAGE] build args" {
         $TEST_JAW="C:/hamster"
         $CUSTOM_IMAGE_NAME = "custom-${AGENT_IMAGE}"
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file=$global:IMAGE_FOLDER/Dockerfile ./"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ${global:BUILD_CONTEXT}"
         $exitCode | Should -Be 0
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=$global:CONTAINERNAME --publish $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
