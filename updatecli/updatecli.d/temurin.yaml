@@ -145,7 +145,7 @@ targets:
     kind: dockerfile
     sourceid: jdk11LastVersion
     spec:
-      file: windows/nanoserver-ltsc2019/Dockerfile
+      file: windows/nanoserver/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
@@ -155,7 +155,7 @@ targets:
     kind: dockerfile
     sourceid: jdk11LastVersion
     spec:
-      file: windows/windowsservercore-ltsc2019/Dockerfile
+      file: windows/windowsservercore/Dockerfile
       instruction:
         keyword: ARG
         matcher: JAVA_VERSION
