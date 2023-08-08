@@ -76,7 +76,7 @@ Describe "[$global:AGENT_IMAGE] image has setup-sshd.ps1 in the correct location
 
 Describe "[$global:AGENT_IMAGE] checking image metadata" {
     It 'has correct volumes' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect -f '{{.Config.Volumes}}' $global:AGENT_IMAGE"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:AGENT_IMAGE"
         $exitCode | Should -Be 0
 
         $stdout | Should -Match 'C:/Users/jenkins/AppData/Local/Temp'
