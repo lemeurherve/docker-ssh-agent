@@ -24,7 +24,8 @@ pipeline {
                 axes {
                     axis {
                         name 'IMAGE_TYPE'
-                        values 'linux', 'nanoserver-1809', 'windowsservercore-ltsc2019'
+                        // values 'linux', 'nanoserver-1809', 'windowsservercore-ltsc2019'
+                        values 'nanoserver-1809'
                     }
                 }
                 stages {

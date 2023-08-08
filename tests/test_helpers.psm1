@@ -98,8 +98,10 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params, $quiet=$false) {
-    #Write-Host "cmd = $cmd, params = $params"
+function Run-Program($cmd, $params, $quiet=$true) {
+    if (-not $quiet) {
+        Write-Host "Starting Run-Program with cmd = $cmd, params = $params"
+    }
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
@@ -115,7 +117,7 @@ function Run-Program($cmd, $params, $quiet=$false) {
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
     if(($proc.ExitCode -ne 0) -and (-not $quiet)) {
-        Write-Host "`n`ncmd:`n$cmd`n`nparams:`n$params`n`nstdout:`n$stdout`n`nstderr:`n$stderr`n`n"
+        Write-Host "`n`nstdout:`n$stdout`n`nstderr:`n$stderr`n`n"
     }
 
     return $proc.ExitCode, $stdout, $stderr
