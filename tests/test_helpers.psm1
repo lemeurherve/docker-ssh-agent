@@ -125,9 +125,7 @@ function Run-Program($cmd, $params, $quiet=$false) {
 
 # return the published port for given container port $1
 function Get-Port($container, $port=22) {
-    $command = "port $container $port"
-    Write-Host "docker.exe $command"
-    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' $command
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "port $container $port"
     return ($stdout -split ":" | Select-Object -Skip 1).Trim()
 }
 
