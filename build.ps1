@@ -112,7 +112,7 @@ function Test-Image {
     Write-Host "= TEST: Testing image ${ImageName}:"
 
     $env:AGENT_IMAGE = $ImageName
-    $serviceName = $ImageName.SubString(0, $ImageName.LastIndexOf('-'))
+    $serviceName = $ImageName.SubString($ImageName.LastIndexOf('-') + 1)
     $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
 
     # Debug
