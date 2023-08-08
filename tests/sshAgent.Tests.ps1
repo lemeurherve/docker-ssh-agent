@@ -5,10 +5,10 @@ $global:BUILD_CONTEXT = Get-EnvOrDefault 'BUILD_CONTEXT' ''
 
 $items = $global:AGENT_IMAGE.Split("-")
 
-# Remove the 'jdk' prefix (3 first characters)
-$global:JDKMAJORVERSION = $items[0].Remove(0,3)
-$global:WINDOWSFLAVOR = $items[1]
-$global:WINDOWSVERSION = $items[2]
+# Remove the 'jdk' prefix
+$global:JDKMAJORVERSION = $items[2].Remove(0,3)
+$global:WINDOWSFLAVOR = $items[0]
+$global:WINDOWSVERSION = $items[1]
 
 # TODO: make this name unique for concurency
 $global:CONTAINERNAME = 'pester-jenkins-ssh-agent-{0}' -f $global:AGENT_IMAGE
