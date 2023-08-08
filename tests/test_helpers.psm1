@@ -91,7 +91,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params, $quiet=$true) {
+function Run-Program($cmd, $params, $quiet=$false) {
     #Write-Host "cmd = $cmd, params = $params"
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
