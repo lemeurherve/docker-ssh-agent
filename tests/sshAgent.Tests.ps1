@@ -117,8 +117,6 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
-ConvertTo-Json $global
-
 # TODO: fix
 # Describe "[$global:AGENT_IMAGE] create agent container with pubkey as argument" {
 #     BeforeAll {

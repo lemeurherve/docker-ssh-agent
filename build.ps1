@@ -115,11 +115,6 @@ function Test-Image {
     $serviceName = $ImageName.SubString($ImageName.LastIndexOf('-') + 1)
     $env:BUILD_CONTEXT = Invoke-Expression "$baseDockerCmd config" 2>$null |  yq -r ".services.${serviceName}.build.context"
 
-    # Debug
-    Write-Host "env:AGENT_IMAGE: $env:AGENT_IMAGE"
-    Write-Host "serviceName: $serviceName"
-    Write-Host "env:BUILD_CONTEXT: $env:BUILD_CONTEXT"
-
     if(Test-Path ".\target\$ImageName") {
         Remove-Item -Recurse -Force ".\target\$ImageName"
     }
