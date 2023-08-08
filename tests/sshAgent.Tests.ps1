@@ -53,7 +53,7 @@ Cleanup($global:CONTAINERNAME)
 
 Describe "[$global:AGENT_IMAGE] image is present" {
     It 'builds image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect $global:AGENT_IMAGE"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --tag=${global:AGENT_IMAGE} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ${global:BUILD_CONTEXT}"
         $exitCode | Should -Be 0
     }
 }
