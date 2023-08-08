@@ -60,7 +60,7 @@ Describe "[$global:AGENT_IMAGE] image is present" {
 
 Describe "[$global:AGENT_IMAGE] image has setup-sshd.ps1 in the correct location" {
     BeforeAll {
-        docker run --detach --tty --name="$global:CONTAINERNAME" --publish "$global:AGENT_IMAGE" $global:CONTAINERSHELL
+        docker run --detach --tty --name "$global:CONTAINERNAME" "$global:AGENT_IMAGE" -Cmd "$global:CONTAINERSHELL"
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 

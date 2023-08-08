@@ -72,8 +72,15 @@ function Retry-Command {
 }
 
 function Cleanup($name='') {
-    docker kill "$name" 2>&1 | Out-Null
-    docker rm -fv "$name" 2>&1 | Out-Null
+    if([System.String]::IsNullOrWhiteSpace($name)) {
+        $name = Get-EnvOrDefault 'AGENT_IMAGE' ''
+    }
+
+    if(![System.String]::IsNullOrWhiteSpace($name)) {
+        #Write-Host "Cleaning up $name"
+        docker kill "$name" 2>&1 | Out-Null
+        docker rm -fv "$name" 2>&1 | Out-Null
+    }
 }
 
 function CleanupNetwork($name) {
@@ -83,7 +90,7 @@ function CleanupNetwork($name) {
 function Is-ContainerRunning($container) {
     Start-Sleep -Seconds 5
     return Retry-Command -RetryCount 10 -Delay 2 -ScriptBlock {
-        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect -f `"{{.State.Running}}`" $container"
+        $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "inspect --format `"{{.State.Running}}`" $container"
         if(($exitCode -ne 0) -or (-not $stdout.Contains('true')) ) {
             throw('Exit code incorrect, or invalid value for running state')
         }
@@ -116,7 +123,9 @@ function Run-Program($cmd, $params, $quiet=$false) {
 
 # return the published port for given container port $1
 function Get-Port($container, $port=22) {
-    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "port $container $port"
+    $command = "port $container $port"
+    Write-Host "docker.exe $command"
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' $command
     return ($stdout -split ":" | Select-Object -Skip 1).Trim()
 }
 
