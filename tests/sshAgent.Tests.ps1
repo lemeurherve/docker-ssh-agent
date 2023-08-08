@@ -52,6 +52,7 @@ TUwLP4n7pK4J2sCIs6fRD5kEYms4BnddXeRuI2fGZHGH70Ci/Q==
 
 Cleanup($global:CONTAINERNAME)
 
+# TODO: uncomment (fixed)
 # Describe "[$global:AGENT_IMAGE] image is present" {
 #     It 'builds image' {
 #         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --tag=${global:AGENT_IMAGE} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ${global:BUILD_CONTEXT}"
@@ -59,6 +60,7 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
+# TODO: uncomment (fixed)
 # Describe "[$global:AGENT_IMAGE] image has setup-sshd.ps1 in the correct location" {
 #     BeforeAll {
 #         docker run --detach --interactive --tty --name "$global:CONTAINERNAME" --publish-all  "$global:AGENT_IMAGE" "$global:CONTAINERSHELL"
@@ -75,6 +77,7 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
+# TODO: uncomment (fixed)
 # Describe "[$global:AGENT_IMAGE] checking image metadata" {
 #     It 'has correct volumes' {
 #         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:AGENT_IMAGE" $global:TESTS_DEBUG
@@ -91,6 +94,7 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
+# TODO: uncomment (fixed)
 # Describe "[$global:AGENT_IMAGE] image has correct version of java installed and in the PATH" {
 #     BeforeAll {
 #         docker run --detach --tty --name="$global:CONTAINERNAME" --publish-all "$global:AGENT_IMAGE" $global:CONTAINERSHELL
@@ -115,6 +119,7 @@ Cleanup($global:CONTAINERNAME)
 
 ConvertTo-Json $global
 
+# TODO: fix
 # Describe "[$global:AGENT_IMAGE] create agent container with pubkey as argument" {
 #     BeforeAll {
 #         docker run --detach --tty --interactive --name="$global:CONTAINERNAME" --publish-all "$global:AGENT_IMAGE" "$PUBLIC_SSH_KEY"
@@ -207,6 +212,7 @@ Describe "[$global:AGENT_IMAGE] create agent container with pubkey as argument" 
 #     }
 # }
 
+# TODO: uncomment (fixed)
 # Describe "[$global:AGENT_IMAGE] build args" {
 #     BeforeAll {
 #         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
