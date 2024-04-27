@@ -112,7 +112,6 @@ VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
 WORKDIR "${JENKINS_AGENT_WORK}"
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
-COPY entrypoint.ps1 C:/ProgramData/Jenkins/entrypoint.ps1
 
 EXPOSE 22
 
@@ -124,4 +123,4 @@ LABEL `
     org.opencontainers.image.source="https://github.com/jenkinsci/docker-ssh-agent" `
     org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["powershell.exe", "-NoExit", "-Command", "& C:/ProgramData/Jenkins/entrypoint.ps1 "]
+ENTRYPOINT ["powershell.exe", "-NoExit", "-Command", "& C:/ProgramData/Jenkins/setup-sshd.ps1 "]
