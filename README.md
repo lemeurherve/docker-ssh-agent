@@ -98,7 +98,7 @@ Should you want to build this image on your machine (before submitting a pull re
 * git [installed](https://command-not-found.com/git)
 * curl [installed](https://command-not-found.com/curl)
 
-### Building
+### Building on Linux
 
 #### Target images
 
@@ -195,6 +195,20 @@ make show
 make bats
 make: 'bats' is up to date.
 ```
+
+### Building and testing on Windows
+
+From a Powershell console, set first the `IMAGE_TYPE` environment variable defining the Windows flavor ("nanoserver"/"windowsservercore") and  version you want to build.
+
+For example:
+```
+New-Item -Path env:IMAGE_TYPE -Value "nanoserver-ltsc2019"
+```
+
+Then run `.\build.ps1` to launch the build of the images for each jexdk specified in the build-windows.yaml docker compose file.
+
+Run `.\build.ps1 test` if you also want to run the tests harness suit.
+Run `.\build.ps1 test -TestsDebug` to also see what commands are executed in tests, displayed on top of them.
 
 ## Changelog
 
