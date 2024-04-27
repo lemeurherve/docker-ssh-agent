@@ -148,7 +148,7 @@ if($target -eq "test") {
         $configuration.Output.Verbosity = 'Diagnostic'
         $configuration.CodeCoverage.Enabled = $false
 
-        Write-Host "= TEST: Testing all ${agentType} images..."
+        Write-Host "= TEST: Testing all images..."
         # Only fail the run afterwards in case of any test failures
         $testFailed = $false
         Invoke-Expression "$baseDockerCmd config" | yq '.services[].image' | ForEach-Object {

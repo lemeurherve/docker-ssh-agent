@@ -98,9 +98,6 @@ function Is-ContainerRunning($container) {
 }
 
 function Run-Program($cmd, $params, $testsDebug=$false) {
-    if($testsDebug) {
-        Write-Host "cmd & params: $cmd $params"
-    }
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
@@ -115,11 +112,12 @@ function Run-Program($cmd, $params, $testsDebug=$false) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
-    if(($proc.ExitCode -ne 0) -and ($testsDebug)) {
-        Write-Host "[err] stdout:`n$stdout"
-        Write-Host "[err] stderr:`n$stderr"
-        Write-Host "[err] cmd:`n$cmd"
-        Write-Host "[err] params:`n$param"
+    if($testsDebug) {
+        Write-Host "[cmd] $cmd $params"
+        Write-Host "[stdout] $stdout"
+        if($proc.ExitCode -ne 0) {
+            Write-Host "[stderr] $stderr"
+        }
     }
 
     return $proc.ExitCode, $stdout, $stderr
