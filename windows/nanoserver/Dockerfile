@@ -135,4 +135,4 @@ LABEL `
     org.opencontainers.image.source="https://github.com/jenkinsci/docker-ssh-agent" `
     org.opencontainers.image.licenses="MIT"
 
-ENTRYPOINT ["pwsh.exe", "-NoExit", "-Command", "& 'C:/Program Files/OpenSSH-Win64/install-sshd.ps1' && & C:/ProgramData/Jenkins/setup-sshd.ps1"]
+ENTRYPOINT ["pwsh.exe", "-NoExit", "-Command", "& 'C:/Program Files/OpenSSH-Win64/install-sshd.ps1' ; if ($LASTEXITCODE -eq 0) { & C:/ProgramData/Jenkins/setup-sshd.ps1 }"]
