@@ -126,7 +126,7 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
-Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
+Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument") {
     BeforeAll {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
         $exitCode | Should -Be 0
@@ -144,7 +144,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
     }
 }
 
-# Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
+# Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar") {
 #     BeforeAll {
 #         docker run --detach --tty --name="$global:CONTAINERNAME" --publish-all --env="JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY" "$global:IMAGE_NAME"
 #         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
@@ -163,7 +163,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
 
 
 # $global:DOCKER_PLUGIN_DEFAULT_ARG="/usr/sbin/sshd -D -p 22"
-# Describe "[$global:IMAGE_NAME] create agent container like docker-plugin with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument" {
+# Describe "[$global:IMAGE_NAME] create agent container like docker-plugin with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument") {
 #     BeforeAll {
 #         [string]::IsNullOrWhiteSpace($global:DOCKER_PLUGIN_DEFAULT_ARG) | Should -BeFalse
 #         docker run --detach --tty --name="$global:CONTAINERNAME" --publish-all --env="JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY" "$global:IMAGE_NAME" "$global:DOCKER_PLUGIN_DEFAULT_ARG"
