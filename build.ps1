@@ -14,7 +14,7 @@ $Organisation = 'jenkins'
 $ImageType = 'windows-ltsc2019'
 
 $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
-$baseDockerBuildCmd = '{0} build --progress=plain --quiet --parallel --pull' -f $baseDockerCmd
+$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 $env:TESTS_DEBUG = $TestsDebug
 
