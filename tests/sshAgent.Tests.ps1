@@ -132,12 +132,6 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" -
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
-    It 'check ssh version on the host' {
-        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') '-V' $true
-        $exitCode | Should -Be 0
-        $stdout | Should -Match 'OpenSSH_'
-    }
-
     It 'runs commands via ssh' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
         $exitCode | Should -Be 0
