@@ -97,7 +97,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params, $quiet=$false) {
+function Run-Program($cmd, $params, $quiet=$true) {
     if(-not $quiet) {
         Write-Host "cmd & params: $cmd $params"
     }
@@ -132,7 +132,7 @@ function Get-Port($container, $port=22) {
 }
 
 # run a given command through ssh on the test container.
-function Run-ThruSSH($container, $privateKeyVal, $cmd) {
+function Run-ThruSSH($container, $privateKeyVal, $cmd, $quiet=$true) {
     $SSH_PORT=Get-Port $container 22
     if([System.String]::IsNullOrWhiteSpace($SSH_PORT)) {
         Write-Error "Failed to get SSH port"
@@ -141,7 +141,7 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd) {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
 
-        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
+        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd" $quiet
         Remove-Item -Force $TMP_PRIV_KEY_FILE
 
         return $exitCode, $stdout, $stderr

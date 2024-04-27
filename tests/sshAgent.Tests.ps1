@@ -1,6 +1,7 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
 $global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:nanoserver-1809-jdk17
+$global:TESTS_DEBUG = Get-EnvOrDefault 'TESTS_DEBUG'
 
 $imageItems = $global:IMAGE_NAME.Split(":")
 $global:IMAGE_TAG = $imageItems[1]
@@ -100,7 +101,8 @@ Describe "[$global:IMAGE_NAME] checking image metadata" {
 
 Describe "[$global:IMAGE_NAME] image has correct version of java and git-lfs installed and in the PATH" {
     BeforeAll {
-        docker run --detach --tty --name="$global:CONTAINERNAME" --publish-all "$global:IMAGE_NAME" $global:CONTAINERSHELL
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" $global:TESTS_DEBUG
+        $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME
     }
 
@@ -128,7 +130,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of java and git-lfs ins
 
 Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
     BeforeAll {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
@@ -146,7 +148,8 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
 
 Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
     BeforeAll {
-        docker run --detach --tty --name="$global:CONTAINERNAME" --publish-all --env="JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY" "$global:IMAGE_NAME"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" $global:TESTS_DEBUG
+        $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 

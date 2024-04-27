@@ -4,13 +4,19 @@ Param(
     [String] $Target = 'build',
     [String] $Build = '',
     [String] $VersionTag = '1.0-1',
-    [switch] $DryRun = $false
+    [switch] $DryRun = $false,
+    [switch] $TestsDebug = $false
 )
 
 $ErrorActionPreference = 'Stop'
 $Repository = 'ssh-agent'
 $Organisation = 'jenkins'
 $ImageType = 'windows-ltsc2019'
+
+$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
+$baseDockerBuildCmd = '{0} build --progress quiet --parallel --pull' -f $baseDockerCmd
+
+$env:TESTS_DEBUG = $TestsDebug
 
 if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_REPO)) {
     $Repository = $env:DOCKERHUB_REPO
@@ -97,9 +103,6 @@ function Test-Image {
 
     return $failed
 }
-
-$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
-$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 Write-Host "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
 Invoke-Expression "$baseDockerCmd config"
