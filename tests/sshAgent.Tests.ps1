@@ -134,6 +134,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        Start-Sleep -Seconds 10
     }
 
     It 'runs commands via ssh' {
@@ -152,12 +153,14 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        Start-Sleep -Seconds 10
     }
 
     It 'runs commands via ssh' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         $stdout | Should -Match "f00"
+        Start-Sleep -Seconds 10
     }
 
     AfterAll {
@@ -173,6 +176,7 @@ Describe "[$global:IMAGE_NAME] create agent container like docker-plugin with '$
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`" `"$global:DOCKER_PLUGIN_DEFAULT_ARG`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        Start-Sleep -Seconds 10
     }
 
     It 'runs commands via ssh' {
