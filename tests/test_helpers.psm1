@@ -99,7 +99,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params, $verbosity) {
+function Run-Program($cmd, $params, $testsDebug = '') {
     [CmdletBinding()]
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
@@ -115,40 +115,25 @@ function Run-Program($cmd, $params, $verbosity) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
-
-    Write-Host "This is INFO message"
-    Write-Host "verbosity: $verbosity"
-    $VerbosePreference = $verbosity
-    Write-Host "verbosepref: $VerbosePreference"
-    $InformationPreference = 'Continue'
-    Write-Information "InformationPreference: $InformationPreference"
-
-    if ($PSBoundParameters.debug) {
-        Write-Host -fore cyan "This is DEBUG message"
+    if(($testsDebub -eq 'debug') -or ($testsDebub -eq 'verbose')) {
+        Write-Host -ForegroundColor Gray "[cmd] $cmd $params"
+        if ($testsDebug -eq 'verbose') { Write-Host -ForegroundColor DarkGray "[stdout] $stdout" }
+        if($proc.ExitCode -ne 0){
+            Write-Host -ForegroundColor DarkRed "[stderr] $stderr"
+        }
     }
-
-    if ($PSBoundParameters.verbose) {
-        Write-Host -fore green "This is VERBOSE message"
-    }
-
-    Write-Debug "[cmd] $cmd $params"
-    Write-Verbose "[stdout] $stdout"
-    if($proc.ExitCode -ne 0){
-        Write-Debug "[stderr] $stderr"
-    }
-
     return $proc.ExitCode, $stdout, $stderr
 }
 
 # return the published port for given container port $1
-function Get-Port($container, $port=22, $testsDebug=$false) {
+function Get-Port($container, $port=22, $testsDebug = '') {
     $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "port $container $port" $testsDebug
     return ($stdout -split ":" | Select-Object -Skip 1).Trim()
 }
 
 # run a given command through ssh on the test container.
-function Run-ThruSSH($container, $privateKeyVal, $cmd, $testsDebug=$false) {
-    $SSH_PORT=Get-Port $container 22
+function Run-ThruSSH($container, $privateKeyVal, $cmd, $testsDebug = '') {
+    $SSH_PORT = Get-Port $container 22 $testsDebub
     if([System.String]::IsNullOrWhiteSpace($SSH_PORT)) {
         Write-Error "Failed to get SSH port"
         return -1, $null, $null

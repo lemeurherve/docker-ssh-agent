@@ -5,7 +5,7 @@ Param(
     [String] $Build = '',
     [String] $VersionTag = '1.0-1',
     [switch] $DryRun = $false,
-    [switch] $TestsDebug = $false
+    [String] $TestsDebug = ''  # Accepted values: empty (no additional test output), 'debug' (test cmd & stderr outputed), 'verbose' (test cmd, stderr, stdout outputed)
 )
 
 $ErrorActionPreference = 'Stop'

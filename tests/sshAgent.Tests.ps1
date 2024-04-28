@@ -65,7 +65,7 @@ Cleanup($global:CONTAINERNAME)
 
 Describe "[$global:IMAGE_NAME] image is present" {
     It 'builds image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ." $VerbosePreference
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ." $global:TESTS_DEBUG
         $exitCode | Should -Be 0
     }
 }
@@ -122,7 +122,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
     }
 
     It 'has git-lfs (and thus git) installed and in the path' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
     }
