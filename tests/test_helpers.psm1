@@ -115,6 +115,7 @@ function Run-Program($cmd, $params) {
     $proc.WaitForExit()
 
     Write-Host "This is INFO message"
+    Write-Host "verbosepref: $VerbosePreference"
 
     if ($PSBoundParameters.debug) {
         Write-Host -fore cyan "This is DEBUG message"
