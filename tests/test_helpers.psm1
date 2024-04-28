@@ -138,16 +138,7 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd) {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
 
-        $exitCode = 0
-        $stdout = 0
-        $stderr = 0
-        # return Retry-Command -RetryCount 10 -Delay 2 -ScriptBlock {
-            $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
-        #     if(($exitCode -ne 0) -or (-not $stdout.Contains('true')) ) {
-        #         throw('Exit code incorrect, or invalid value for running state')
-        #     }
-        #     return $true
-        # }
+        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
         Remove-Item -Force $TMP_PRIV_KEY_FILE
 
         return $exitCode, $stdout, $stderr
