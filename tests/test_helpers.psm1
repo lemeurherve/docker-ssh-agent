@@ -97,7 +97,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params) {
+function Run-Program($cmd, $params, $verbosity) {
     [CmdletBinding()]
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
@@ -115,6 +115,8 @@ function Run-Program($cmd, $params) {
     $proc.WaitForExit()
 
     Write-Host "This is INFO message"
+    Write-Host "verbosity: $verbosity"
+    $VerbosePreference = $verbosity
     Write-Host "verbosepref: $VerbosePreference"
 
     if ($PSBoundParameters.debug) {
