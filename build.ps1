@@ -73,6 +73,7 @@ Test-CommandExists "docker-compose"
 Test-CommandExists "yq"
 
 function Test-Image {
+    [CmdletBinding()]
     param (
         $ImageName
     )
