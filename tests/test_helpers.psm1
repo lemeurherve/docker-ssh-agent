@@ -118,6 +118,8 @@ function Run-Program($cmd, $params, $verbosity) {
     Write-Host "verbosity: $verbosity"
     $VerbosePreference = $verbosity
     Write-Host "verbosepref: $VerbosePreference"
+    $InformationPreference = 'Continue'
+    Write-Information "InformationPreference: $InformationPreference"
 
     if ($PSBoundParameters.debug) {
         Write-Host -fore cyan "This is DEBUG message"
