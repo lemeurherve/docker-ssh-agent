@@ -97,10 +97,7 @@ function Is-ContainerRunning($container) {
     }
 }
 
-function Run-Program($cmd, $params, $testsDebug = '') {
-    Write-Host ":::::::: env:TESTS_DEBUG: $env:TESTS_DEBUG"
-    Write-Host ":::::::: global:TESTS_DEBUG: $global:TESTS_DEBUG"
-    Write-Host ":::::::: testsDebug: $testsDebug"
+function Run-Program($cmd, $params) {
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
@@ -115,9 +112,9 @@ function Run-Program($cmd, $params, $testsDebug = '') {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
-    if(($testsDebub -eq 'debug') -or ($testsDebub -eq 'verbose')) {
+    if(($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose')) {
         Write-Host -ForegroundColor Gray "[cmd] $cmd $params"
-        if ($testsDebug -eq 'verbose') { Write-Host -ForegroundColor DarkGray "[stdout] $stdout" }
+        if ($env:TESTS_DEBUG -eq 'verbose') { Write-Host -ForegroundColor DarkGray "[stdout] $stdout" }
         if($proc.ExitCode -ne 0){
             Write-Host -ForegroundColor DarkRed "[stderr] $stderr"
         }
@@ -126,13 +123,13 @@ function Run-Program($cmd, $params, $testsDebug = '') {
 }
 
 # return the published port for given container port $1
-function Get-Port($container, $port=22, $testsDebug = '') {
-    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "port $container $port" $testsDebug
+function Get-Port($container, $port=22) {
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "port $container $port"
     return ($stdout -split ":" | Select-Object -Skip 1).Trim()
 }
 
 # run a given command through ssh on the test container.
-function Run-ThruSSH($container, $privateKeyVal, $cmd, $testsDebug = '') {
+function Run-ThruSSH($container, $privateKeyVal, $cmd) {
     $SSH_PORT = Get-Port $container 22 $testsDebub
     if([System.String]::IsNullOrWhiteSpace($SSH_PORT)) {
         Write-Error 'Failed to get SSH port'
@@ -141,7 +138,7 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd, $testsDebug = '') {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
         Set-Content -Path $TMP_PRIV_KEY_FILE -Value "$privateKeyVal"
 
-        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd" $testsDebug
+        $exitCode, $stdout, $stderr = Run-Program (Join-Path $PSScriptRoot 'ssh.exe') "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
         Remove-Item -Force $TMP_PRIV_KEY_FILE
 
         return $exitCode, $stdout, $stderr
