@@ -208,7 +208,7 @@ New-Item -Path env:IMAGE_TYPE -Value "nanoserver-ltsc2019"
 Then run `.\build.ps1` to launch the build of the images for each jexdk specified in the build-windows.yaml docker compose file.
 
 Run `.\build.ps1 test` if you also want to run the tests harness suit.
-Run `.\build.ps1 test -TestsDebug` to also see what commands are executed in tests, displayed on top of them.
+Run `.\build.ps1 test -TestsDebug` to also get commands & outputs of tests, displayed on top of them.
 
 ## Changelog
 
