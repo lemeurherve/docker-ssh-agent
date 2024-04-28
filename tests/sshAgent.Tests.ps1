@@ -119,7 +119,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
         $m.Groups['major'].ToString() | Should -Be "$global:JAVAMAJORVERSION"
     }
 
-    It 'has git-lfs (and thus git) installed' {
+    It 'has git-lfs (and thus git) installed and in the path' {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
         $exitCode | Should -Be 0
         $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
