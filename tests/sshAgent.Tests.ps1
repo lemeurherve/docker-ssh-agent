@@ -20,12 +20,12 @@ if ($items[1] -eq 'ltsc2019') {
 # TODO: make this name unique for concurency
 $global:CONTAINERNAME = 'pester-jenkins-ssh-agent-{0}' -f $global:IMAGE_TAG
 
-$global:CONTAINERSHELL = "powershell.exe"
+$global:CONTAINERSHELL = 'powershell.exe'
 if($global:WINDOWSFLAVOR -eq 'nanoserver') {
-    $global:CONTAINERSHELL = "pwsh.exe"
+    $global:CONTAINERSHELL = 'pwsh.exe'
 }
 
-$global:PUBLIC_SSH_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAvnRN27LdPPQq2OH3GiFFGWX/SH5TCPVePLR21ngMFV8nAthXgYrFkRi/t+Wafe3ByTu2XYUDlXHKGIPIoAKo4gz5dIjUFfoac1ZuCDIbEiqPEjkk4tkfc2qr/BnIZsOYQi4Mbu+Z40VZEsAQU7eBinnZaHE1qGMHjS1xfrRtp2rdeO1EBz92FJ8dfnkUnohTXo3qPVSFGIPbh7UKEoKcyCosRO1P41iWD1rVsH1SLLXYAh2t49L7IPiplg09Dep6H47LyQVbxU9eXY8yMtUrRuwEk9IUX/IqpxNhk5hngHPP3JjsP0hyyrYSPkZlbs3izd9kk3y09Wn/ElHidiEk0Q=="
+$global:PUBLIC_SSH_KEY = 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAvnRN27LdPPQq2OH3GiFFGWX/SH5TCPVePLR21ngMFV8nAthXgYrFkRi/t+Wafe3ByTu2XYUDlXHKGIPIoAKo4gz5dIjUFfoac1ZuCDIbEiqPEjkk4tkfc2qr/BnIZsOYQi4Mbu+Z40VZEsAQU7eBinnZaHE1qGMHjS1xfrRtp2rdeO1EBz92FJ8dfnkUnohTXo3qPVSFGIPbh7UKEoKcyCosRO1P41iWD1rVsH1SLLXYAh2t49L7IPiplg09Dep6H47LyQVbxU9eXY8yMtUrRuwEk9IUX/IqpxNhk5hngHPP3JjsP0hyyrYSPkZlbs3izd9kk3y09Wn/ElHidiEk0Q=='
 $global:PRIVATE_SSH_KEY = @"
 -----BEGIN RSA PRIVATE KEY-----
 MIIEoQIBAAKCAQEAvnRN27LdPPQq2OH3GiFFGWX/SH5TCPVePLR21ngMFV8nAthX
@@ -140,7 +140,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
     It 'runs commands via ssh' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
-        $stdout | Should -Match "f00"
+        $stdout | Should -Match 'f00'
     }
 
     AfterAll {
@@ -159,7 +159,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
     It 'runs commands via ssh' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
-        $stdout | Should -Match "f00"
+        $stdout | Should -Match 'f00'
         Start-Sleep -Seconds 10
     }
 
@@ -182,7 +182,7 @@ Describe "[$global:IMAGE_NAME] create agent container like docker-plugin with '$
     It 'runs commands via ssh' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`"" $global:TESTS_DEBUG
         $exitCode | Should -Be 0
-        $stdout | Should -Match "f00"
+        $stdout | Should -Match 'f00'
     }
 
     AfterAll {
@@ -196,8 +196,8 @@ Describe "[$global:IMAGE_NAME] build args" {
     }
 
     It 'uses build args correctly' {
-        $TEST_USER="testuser"
-        $TEST_JAW="C:/hamster"
+        $TEST_USER = 'testuser'
+        $TEST_JAW = 'C:/hamster'
         $CUSTOM_IMAGE_NAME = "custom-${IMAGE_NAME}"
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ." $global:TESTS_DEBUG
