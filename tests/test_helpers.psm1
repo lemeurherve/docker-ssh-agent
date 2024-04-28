@@ -16,7 +16,7 @@ function Test-CommandExists($command) {
 
 # check dependencies
 if(-Not (Test-CommandExists docker)) {
-    Write-Error "docker is not available"
+    Write-Error 'docker is not available'
 }
 
 function Get-EnvOrDefault($name, $def) {
@@ -37,8 +37,8 @@ function Retry-Command {
         [scriptblock] $ScriptBlock,
         [int] $RetryCount = 3,
         [int] $Delay = 30,
-        [string] $SuccessMessage = "Command executed successfuly!",
-        [string] $FailureMessage = "Failed to execute the command"
+        [string] $SuccessMessage = 'Command executed successfuly!',
+        [string] $FailureMessage = 'Failed to execute the command'
         )
 
     process {
@@ -135,7 +135,7 @@ function Get-Port($container, $port=22, $testsDebug = '') {
 function Run-ThruSSH($container, $privateKeyVal, $cmd, $testsDebug = '') {
     $SSH_PORT = Get-Port $container 22 $testsDebub
     if([System.String]::IsNullOrWhiteSpace($SSH_PORT)) {
-        Write-Error "Failed to get SSH port"
+        Write-Error 'Failed to get SSH port'
         return -1, $null, $null
     } else {
         $TMP_PRIV_KEY_FILE = New-TemporaryFile
