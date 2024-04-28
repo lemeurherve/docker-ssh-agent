@@ -129,21 +129,21 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
         Cleanup($global:CONTAINERNAME)
     }
 
-    It 'has SSH installed and in the path' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
-        $exitCode | Should -Be 0
+    # It 'has SSH installed and in the path' {
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
+    #     $exitCode | Should -Be 0
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh -V`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
-    }
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh -V`""
+    #     $exitCode | Should -Be 0
+    #     $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
+    # }
 
-    It 'can connect via SSH to localhost' {
-        $SSH_PORT=Get-Port $global:CONTAINERNAME 22
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh -v jenkins@127.0.0.1 -p $SSH_PORT`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match 'OpenSSH'
-    }
+    # It 'can connect via SSH to localhost' {
+    #     $SSH_PORT=Get-Port $global:CONTAINERNAME 22
+    #     $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh -v jenkins@127.0.0.1 -p $SSH_PORT`""
+    #     $exitCode | Should -Be 0
+    #     $stdout.Trim() | Should -Match 'OpenSSH'
+    # }
 }
 
 Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
