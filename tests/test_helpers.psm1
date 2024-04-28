@@ -98,6 +98,7 @@ function Is-ContainerRunning($container) {
 }
 
 function Run-Program($cmd, $params) {
+    [CmdletBinding()]
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false
