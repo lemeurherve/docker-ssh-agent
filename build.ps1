@@ -17,6 +17,7 @@ $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
 $env:TESTS_DEBUG = $TestsDebug
+Write-Host "=== env:TESTS_DEBUG: $env:TESTS_DEBUG"
 
 if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_REPO)) {
     $Repository = $env:DOCKERHUB_REPO
@@ -73,7 +74,6 @@ Test-CommandExists "docker-compose"
 Test-CommandExists "yq"
 
 function Test-Image {
-    [CmdletBinding()]
     param (
         $ImageName
     )
