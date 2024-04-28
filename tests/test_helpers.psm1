@@ -19,6 +19,8 @@ if(-Not (Test-CommandExists docker)) {
     Write-Error "docker is not available"
 }
 
+$VerbosePreference = Get-EnvOrDefault 'TESTS_DEBUG' '$false'
+
 function Get-EnvOrDefault($name, $def) {
     $entry = Get-ChildItem env: | Where-Object { $_.Name -eq $name } | Select-Object -First 1
     if(($null -ne $entry) -and ![System.String]::IsNullOrWhiteSpace($entry.Value)) {
