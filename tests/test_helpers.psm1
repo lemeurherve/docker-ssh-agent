@@ -112,6 +112,17 @@ function Run-Program($cmd, $params) {
     $stdout = $proc.StandardOutput.ReadToEnd()
     $stderr = $proc.StandardError.ReadToEnd()
     $proc.WaitForExit()
+
+    Write-Host "This is INFO message"
+
+    if ($PSBoundParameters.debug) {
+        Write-Host -fore cyan "This is DEBUG message"
+    }
+
+    if ($PSBoundParameters.verbose) {
+        Write-Host -fore green "This is VERBOSE message"
+    }
+
     Write-Debug "[cmd] $cmd $params"
     Write-Verbose "[stdout] $stdout"
     if($proc.ExitCode -ne 0){
