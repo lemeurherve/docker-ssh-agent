@@ -114,7 +114,7 @@ function Run-Program($cmd, $params) {
     $proc.WaitForExit()
     if(($env:TESTS_DEBUG -eq 'debug') -or ($env:TESTS_DEBUG -eq 'verbose')) {
         Write-Host -ForegroundColor Gray "[cmd] $cmd $params"
-        if ($env:TESTS_DEBUG -eq 'verbose') { Write-Host -ForegroundColor DarkGray "[stdout] $stdout" }
+        if ($env:TESTS_DEBUG -eq 'verbose') { Write-Host -ForegroundColor DarkBlue "[stdout] $stdout" }
         if($proc.ExitCode -ne 0){
             Write-Host -ForegroundColor DarkRed "[stderr] $stderr"
         }
