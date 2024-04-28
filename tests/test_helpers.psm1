@@ -98,6 +98,9 @@ function Is-ContainerRunning($container) {
 }
 
 function Run-Program($cmd, $params, $testsDebug = '') {
+    Write-Host ":::::::: env:TESTS_DEBUG: $env:TESTS_DEBUG"
+    Write-Host ":::::::: global:TESTS_DEBUG: $global:TESTS_DEBUG"
+    Write-Host ":::::::: testsDebug: $testsDebug"
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.CreateNoWindow = $true
     $psi.UseShellExecute = $false

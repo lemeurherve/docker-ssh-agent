@@ -3,7 +3,7 @@ Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 $global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:nanoserver-1809-jdk17
 $global:TESTS_DEBUG = Get-EnvOrDefault 'TESTS_DEBUG' ''
 
-Write-Host "===>> env:TESTS_DEBUG: $env:TESTS_DEBUG"
+Write-Host "===>> global:TESTS_DEBUG: $global:TESTS_DEBUG"
 
 $imageItems = $global:IMAGE_NAME.Split(":")
 $global:IMAGE_TAG = $imageItems[1]
