@@ -150,7 +150,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-        # Start-Sleep -Seconds 10
+        Start-Sleep -Seconds 10
     }
 
     It 'runs commands via ssh' {
