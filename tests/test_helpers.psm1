@@ -27,7 +27,7 @@ function Get-EnvOrDefault($name, $def) {
     return $def
 }
 
-$VerbosePreference = Get-EnvOrDefault 'TESTS_DEBUG' '$false'
+$VerbosePreference = $global:TESTS_DEBUG
 
 function Retry-Command {
     [CmdletBinding()]
