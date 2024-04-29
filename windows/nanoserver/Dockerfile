@@ -105,7 +105,9 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null ; `
-    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
+    $ErrorActionPreference = 'Continue' ; `
+    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
+    $ErrorActionPreference = 'Stop'
 
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
