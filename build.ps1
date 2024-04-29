@@ -53,7 +53,46 @@ if ($items[1] -eq 'ltsc2019') {
     $env:TOOLS_WINDOWS_VERSION = '1809'
 }
 
-# Check for required commands
+Function Output {
+    param (
+        $Message
+    )
+
+    Write-Host -ForegroundColor Cyan $Message
+}
+
+function Test-Image {
+    param (
+        $ImageName
+    )
+
+    $imageNameItems = $imageName.Split(":")
+    $imageTag = $imageNameItems[1]
+
+    Output "= TEST: Testing ${ImageName} image"
+
+    $env:IMAGE_NAME = $ImageName
+
+    $targetPath = '.\target\{0}' -f $imageTag
+    if(Test-Path $targetPath) {
+        Remove-Item -Recurse -Force $targetPath
+    }
+    New-Item -Path $targetPath -Type Directory | Out-Null
+    # $configuration.Run.Path = 'tests\sshAgent.Tests.ps1'
+    $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
+    $TestResults = Invoke-Pester -Configuration $configuration
+    $failed = $false
+    if ($TestResults.FailedCount -gt 0) {
+        Output "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
+        $failed = $true
+    } else {
+        Output "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
+    }
+    Remove-Item env:\IMAGE_NAME
+
+    return $failed
+}
+
 Function Test-CommandExists {
     # From https://devblogs.microsoft.com/scripting/use-a-powershell-function-to-see-if-a-command-exists/
     Param (
@@ -75,51 +114,20 @@ Function Test-CommandExists {
     }
 }
 
+# Check for required commands
 Test-CommandExists 'docker'
 Test-CommandExists 'docker-compose'
 Test-CommandExists 'yq'
 
-function Test-Image {
-    param (
-        $ImageName
-    )
-
-    $imageNameItems = $imageName.Split(":")
-    $imageTag = $imageNameItems[1]
-
-    Write-Host -ForegroundColor Cyan "= TEST: Testing ${ImageName} image"
-
-    $env:IMAGE_NAME = $ImageName
-
-    $targetPath = '.\target\{0}' -f $imageTag
-    if(Test-Path $targetPath) {
-        Remove-Item -Recurse -Force $targetPath
-    }
-    New-Item -Path $targetPath -Type Directory | Out-Null
-    # $configuration.Run.Path = 'tests\sshAgent.Tests.ps1'
-    $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
-    $TestResults = Invoke-Pester -Configuration $configuration
-    $failed = $false
-    if ($TestResults.FailedCount -gt 0) {
-        Write-Host -ForegroundColor Cyan "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
-        $failed = $true
-    } else {
-        Write-Host -ForegroundColor Cyan "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
-    }
-    Remove-Item env:\IMAGE_NAME
-
-    return $failed
-}
-
-Write-Host -ForegroundColor Cyan "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
+Output "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
 Invoke-Expression "$baseDockerCmd config"
 
-Write-Host -ForegroundColor Cyan '= BUILD: Building all images...'
-    switch ($DryRun) {
-        $true { Write-Host -ForegroundColor Cyan "(dry-run) $baseDockerBuildCmd" }
-        $false { Invoke-Expression $baseDockerBuildCmd }
-    }
-    Write-Host -ForegroundColor Cyan '= BUILD: Finished building all images.'
+Output '= BUILD: Building all images...'
+switch ($DryRun) {
+    $true { Output "(dry-run) $baseDockerBuildCmd" }
+    $false { Invoke-Expression $baseDockerBuildCmd }
+}
+Output '= BUILD: Finished building all images.'
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
@@ -127,13 +135,13 @@ if($lastExitCode -ne 0) {
 
 if($target -eq 'test') {
     if ($DryRun) {
-        Write-Host -ForegroundColor Cyan '= TEST: (dry-run) test harness'
+        Output '= TEST: (dry-run) test harness'
     } else {
-        Write-Host -ForegroundColor Cyan '= TEST: Starting test harness'
+        Output '= TEST: Starting test harness'
 
         $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
         if($null -eq $mod) {
-            Write-Host -ForegroundColor Cyan '= TEST: Pester 5.3.x not found: installing...'
+            Output '= TEST: Pester 5.3.x not found: installing...'
             $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
             if(Test-Path $module) {
                 takeown /F $module /A /R
@@ -145,7 +153,7 @@ if($target -eq 'test') {
         }
 
         Import-Module Pester
-        Write-Host -ForegroundColor Cyan '= TEST: Setting up Pester environment...'
+        Output '= TEST: Setting up Pester environment...'
         $configuration = [PesterConfiguration]::Default
         $configuration.Run.PassThru = $true
         $configuration.Run.Path = '.\tests'
@@ -155,7 +163,7 @@ if($target -eq 'test') {
         $configuration.Output.Verbosity = 'Diagnostic'
         $configuration.CodeCoverage.Enabled = $false
 
-        Write-Host -ForegroundColor Cyan '= TEST: Testing all images...'
+        Output '= TEST: Testing all images...'
         # Only fail the run afterwards in case of any test failures
         $testFailed = $false
         Invoke-Expression "$baseDockerCmd config" | yq '.services[].image' | ForEach-Object {
@@ -167,15 +175,15 @@ if($target -eq 'test') {
             Write-Error -ForegroundColor Cyan '= TEST: stage failed!'
             exit 1
         } else {
-            Write-Host -ForegroundColor Cyan '= TEST: stage passed!'
+            Output '= TEST: stage passed!'
         }
     }
 }
 
 if($target -eq 'publish') {
-    Write-Host -ForegroundColor Cyan '= PUBLISH: push all images and tags'
+    Output '= PUBLISH: push all images and tags'
     switch($DryRun) {
-        $true { Write-Host -ForegroundColor Cyan "(dry-run) $baseDockerCmd push" }
+        $true { Output "(dry-run) $baseDockerCmd push" }
         $false { Invoke-Expression "$baseDockerCmd push" }
     }
 
@@ -189,6 +197,6 @@ if($target -eq 'publish') {
 if($lastExitCode -ne 0) {
     Write-Error -ForegroundColor Cyan '= BUILD: Failed!'
 } else {
-    Write-Host -ForegroundColor Cyan '= BUILD: Finished successfully'
+    Output '= BUILD: Finished successfully'
 }
 exit $lastExitCode
