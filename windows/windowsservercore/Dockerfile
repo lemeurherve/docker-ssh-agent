@@ -74,16 +74,15 @@ RUN $CurrentPath = (Get-Itemproperty -path 'hklm:\system\currentcontrolset\contr
 # Setup SSH server
 ARG OPENSSH_VERSION=V8.6.0.0p1-Beta
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
-    New-Item -ItemType Directory -Path 'C:\Temp' ; `
     $url = 'https://github.com/PowerShell/Win32-OpenSSH/releases/download/{0}/OpenSSH-Win64.zip' -f $env:OPENSSH_VERSION ; `
     Write-Host "Retrieving $url..." ; `
-    Invoke-WebRequest -Uri $url -OutFile 'C:\Temp\openssh.zip' -UseBasicParsing ; `
-    Expand-Archive -Path 'C:\Temp\openssh.zip' -DestinationPath 'C:\Temp' ; `
-    Move-Item -Path 'C:\Temp\OpenSSH-Win64\*' -Destination 'C:\Windows\System32\OpenSSH' -Force -PassThru ; `
-    Remove-Item -Path 'C:\Temp' -Force -Recurse ; `
-    & 'C:\Windows\System32\OpenSSH\install-sshd.ps1' ; `
+    Invoke-WebRequest -Uri $url -OutFile 'C:\openssh.zip' -UseBasicParsing ; `
+    Expand-Archive -Path 'C:\openssh.zip' -DestinationPath 'C:\Program Files' ; `
+    Remove-Item -Path 'C:\openssh.zip' ; `
+    $env:PATH = '{0};{1}' -f 'C:\Program Files\OpenSSH-Win64', $env:PATH ; `
+    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
     if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
-    Copy-Item -Path 'C:\Windows\System32\OpenSSH\sshd_config_default' -Destination 'C:\ProgramData\ssh\sshd_config' ; `
+    Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config' ; `
     $content = Get-Content -Path "C:\ProgramData\ssh\sshd_config" ; `
     $content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no' `
                         -replace '#PasswordAuthentication.*','PasswordAuthentication no' `
