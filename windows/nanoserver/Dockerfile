@@ -53,16 +53,6 @@ ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
 ENV JENKINS_AGENT_USER ${user}
 ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
 
-COPY CreateProfile.psm1 C:/
-
-# Create user and user directory
-RUN Import-Module -Force C:/CreateProfile.psm1 ; `
-    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
-    Remove-Item -Force C:/CreateProfile.psm1
-
-VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
-WORKDIR "${JENKINS_AGENT_WORK}"
-
 # Install git
 ARG GIT_VERSION=2.44.0
 ARG GIT_PATCH_VERSION=1
@@ -122,6 +112,16 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
 ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+
+COPY CreateProfile.psm1 C:/
+
+# Create user and user directory
+RUN Import-Module -Force C:/CreateProfile.psm1 ; `
+    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
+    Remove-Item -Force C:/CreateProfile.psm1
+
+VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
+WORKDIR "${JENKINS_AGENT_WORK}"
 
 # Ensure user can run sshd
 USER "${user}"
