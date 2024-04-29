@@ -131,7 +131,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
         $exitCode | Should -Be 0
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh.exe -V`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
         $exitCode | Should -Be 0
         Write-Host "-------> ssh -V: $stdout"
         # $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
