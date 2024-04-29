@@ -112,7 +112,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
 
 # Add tools to PATH
 RUN $NewPath = '{0};{1}\bin;{2}' -f 'C:\Program Files\OpenSSH-Win64;C:\mingit\cmd;C:\Program Files\PowerShell', $env:JAVA_HOME, $env:PATH ; `
-    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
 # ENV ProgramFiles="C:\Program Files"
 # ENV WindowsPATH="C:\Windows\system32;C:\Windows"
