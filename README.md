@@ -98,7 +98,7 @@ Should you want to build this image on your machine (before submitting a pull re
 * git [installed](https://command-not-found.com/git)
 * curl [installed](https://command-not-found.com/curl)
 
-### Building
+### Building and testing on Linux
 
 #### Target images
 
