@@ -63,8 +63,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     else {$url = $('https://github.com/git-for-windows/git/releases/download/v{0}.windows.{1}/MinGit-{0}.{1}-64-bit.zip' -f $env:GIT_VERSION, $env:GIT_PATCH_VERSION)} ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'mingit.zip' -UseBasicParsing ; `
-    Expand-Archive mingit.zip -DestinationPath c:\mingit ; `
-    Remove-Item mingit.zip -Force
+    Expand-Archive -Path 'mingit.zip' -DestinationPath 'C:\mingit' ; `
+    Remove-Item -Path 'mingit.zip' -Force
 
 # Add java & git to PATH
 ENV ProgramFiles="C:\Program Files"
@@ -77,11 +77,11 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     $url = $('https://github.com/git-lfs/git-lfs/releases/download/v{0}/git-lfs-windows-amd64-v{0}.zip' -f $env:GIT_LFS_VERSION) ; `
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
-    Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
+    Expand-Archive 'GitLfs.zip' -DestinationPath 'C:\mingit\mingw64\bin' ; `
     $gitLfsFolder = 'C:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION ; `
-    Move-Item -Path "${gitLfsFolder}\git-lfs.exe" -Destination c:\mingit\mingw64\bin\ ; `
+    Move-Item -Path "${gitLfsFolder}\git-lfs.exe" -Destination 'C:\mingit\mingw64\bin' ; `
     Remove-Item -Path $gitLfsFolder -Recurse -Force ; `
-    Remove-Item GitLfs.zip -Force ; `
+    Remove-Item -Path 'GitLfs.zip' -Force ; `
     & C:\mingit\cmd\git.exe lfs install
 
 # Setup SSH server
@@ -92,7 +92,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest -Uri $url -OutFile 'C:\openssh.zip' -UseBasicParsing ; `
     Expand-Archive -Path 'C:\openssh.zip' -DestinationPath 'C:\Program Files' ; `
     Remove-Item -Path 'C:\openssh.zip' ; `
-    $env:PATH = '{0};{1}' -f 'C:\Program Files\OpenSSH-Win64', $env:PATH ; `
+    $NewPath = '{0};{1}' -f 'C:\Program Files\OpenSSH-Win64', $env:PATH ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
     if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
     Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config' ; `
