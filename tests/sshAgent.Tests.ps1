@@ -214,7 +214,7 @@ Describe "[$global:IMAGE_NAME] build args" {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
         $exitCode | Should -Be 0
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=$global:CONTAINERNAME --publish-all $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$CUSTOM_IMAGE_NAME`""
         $exitCode | Should -Be 0
         Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
 
