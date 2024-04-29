@@ -79,11 +79,11 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest -Uri $url -OutFile 'C:\Temp\openssh.zip' -UseBasicParsing ; `
     Expand-Archive -Path 'C:\Temp\openssh.zip' -DestinationPath 'C:\Temp' ; `
-    Move-Item -Path 'C:\Temp\OpenSSH-Win64\*' -DestinationPath 'C:\Windows\System32\OpenSSH' -Force -PassThru ; `
+    Move-Item -Path 'C:\Temp\OpenSSH-Win64\*' -Destination 'C:\Windows\System32\OpenSSH' -Force -PassThru ; `
     Remove-Item -Path 'C:\Temp' -Force -Recurse ; `
     & 'C:\Windows\System32\OpenSSH\install-sshd.ps1' ; `
     if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
-    Copy-Item -Path 'C:\Windows\System32\OpenSSH\sshd_config_default' -DestinationPath 'C:\ProgramData\ssh\sshd_config' ; `
+    Copy-Item -Path 'C:\Windows\System32\OpenSSH\sshd_config_default' -Destination 'C:\ProgramData\ssh\sshd_config' ; `
     $content = Get-Content -Path "C:\ProgramData\ssh\sshd_config" ; `
     $content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no' `
                         -replace '#PasswordAuthentication.*','PasswordAuthentication no' `
