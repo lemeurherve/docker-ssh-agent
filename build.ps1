@@ -87,7 +87,7 @@ function Test-Image {
     $imageNameItems = $imageName.Split(":")
     $imageTag = $imageNameItems[1]
 
-    Write-Host "= TEST: Testing ${ImageName} image"
+    Write-Host -ForegroundColor Cyan "= TEST: Testing ${ImageName} image"
 
     $env:IMAGE_NAME = $ImageName
 
@@ -101,10 +101,10 @@ function Test-Image {
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
     if ($TestResults.FailedCount -gt 0) {
-        Write-Host "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
+        Write-Host -ForegroundColor Green "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
         $failed = $true
     } else {
-        Write-Host "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
+        Write-Host -ForegroundColor Red "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
     }
     Remove-Item env:\IMAGE_NAME
 
@@ -114,15 +114,15 @@ function Test-Image {
 $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-Write-Host "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
+Write-Host -ForegroundColor Cyan "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
 Invoke-Expression "$baseDockerCmd config"
 
-Write-Host '= BUILD: Building all images...'
+Write-Host -ForegroundColor Cyan '= BUILD: Building all images...'
     switch ($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
+        $true { Write-Host -ForegroundColor Cyan "(dry-run) $baseDockerBuildCmd" }
         $false { Invoke-Expression $baseDockerBuildCmd }
     }
-    Write-Host '= BUILD: Finished building all images.'
+    Write-Host -ForegroundColor Cyan '= BUILD: Finished building all images.'
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
@@ -130,13 +130,13 @@ if($lastExitCode -ne 0) {
 
 if($target -eq 'test') {
     if ($DryRun) {
-        Write-Host '= TEST: (dry-run) test harness'
+        Write-Host -ForegroundColor Cyan '= TEST: (dry-run) test harness'
     } else {
-        Write-Host '= TEST: Starting test harness'
+        Write-Host -ForegroundColor Cyan '= TEST: Starting test harness'
 
         $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
         if($null -eq $mod) {
-            Write-Host '= TEST: Pester 5.3.x not found: installing...'
+            Write-Host -ForegroundColor Cyan '= TEST: Pester 5.3.x not found: installing...'
             $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
             if(Test-Path $module) {
                 takeown /F $module /A /R
@@ -148,7 +148,7 @@ if($target -eq 'test') {
         }
 
         Import-Module Pester
-        Write-Host '= TEST: Setting up Pester environment...'
+        Write-Host -ForegroundColor Cyan '= TEST: Setting up Pester environment...'
         $configuration = [PesterConfiguration]::Default
         $configuration.Run.PassThru = $true
         $configuration.Run.Path = '.\tests'
@@ -158,7 +158,7 @@ if($target -eq 'test') {
         $configuration.Output.Verbosity = 'Diagnostic'
         $configuration.CodeCoverage.Enabled = $false
 
-        Write-Host '= TEST: Testing all images...'
+        Write-Host -ForegroundColor Cyan '= TEST: Testing all images...'
         # Only fail the run afterwards in case of any test failures
         $testFailed = $false
         Invoke-Expression "$baseDockerCmd config" | yq '.services[].image' | ForEach-Object {
@@ -167,31 +167,31 @@ if($target -eq 'test') {
 
         # Fail if any test failures
         if($testFailed -ne $false) {
-            Write-Error '= TEST: stage failed!'
+            Write-Error -ForegroundColor Red '= TEST: stage failed!'
             exit 1
         } else {
-            Write-Host '= TEST: stage passed!'
+            Write-Host -ForegroundColor Green '= TEST: stage passed!'
         }
     }
 }
 
 if($target -eq 'publish') {
-    Write-Host '= PUBLISH: push all images and tags'
+    Write-Host -ForegroundColor Cyan '= PUBLISH: push all images and tags'
     switch($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerCmd push" }
+        $true { Write-Host -ForegroundColor Cyan "(dry-run) $baseDockerCmd push" }
         $false { Invoke-Expression "$baseDockerCmd push" }
     }
 
     # Fail if any issues when publising the docker images
     if($lastExitCode -ne 0) {
-        Write-Error '= PUBLISH: failed!'
+        Write-Error -ForegroundColor Red '= PUBLISH: failed!'
         exit 1
     }
 }
 
 if($lastExitCode -ne 0) {
-    Write-Error 'Build failed!'
+    Write-Error -ForegroundColor Red 'Build failed!'
 } else {
-    Write-Host 'Build finished successfully'
+    Write-Host -ForegroundColor Green 'Build finished successfully'
 }
 exit $lastExitCode
