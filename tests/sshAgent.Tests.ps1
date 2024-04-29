@@ -179,7 +179,6 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
     }
 }
 
-
 $global:DOCKER_PLUGIN_DEFAULT_ARG = '/usr/sbin/sshd -D -p 22'
 Describe "[$global:IMAGE_NAME] create agent container like docker-plugin, i.e. with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument which should be ignored" {
     BeforeAll {
