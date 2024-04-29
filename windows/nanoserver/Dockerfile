@@ -54,11 +54,16 @@ USER ContainerAdministrator
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
     New-Item -Path "C:\jdk-${javaMajorVersion}" -ItemType SymbolicLink -Value "${env:JAVA_HOME}"
 
-# Add tools to PATH
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
-ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
-    
+COPY CreateProfile.psm1 C:/
+
+# Create user and user directory
+RUN Import-Module -Force C:/CreateProfile.psm1 ; `
+    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
+    Remove-Item -Force C:/CreateProfile.psm1
+
+VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
+WORKDIR "${JENKINS_AGENT_WORK}"
+
 # Install git
 ARG GIT_VERSION=2.44.0
 ARG GIT_PATCH_VERSION=1
@@ -115,19 +120,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
-# # Add tools to PATH
-# RUN $NewPath = '{0};{1}\bin;{2}' -f 'C:\Program Files\OpenSSH-Win64;C:\mingit\cmd;C:\Program Files\PowerShell', $env:JAVA_HOME, $env:PATH ; `
-#     Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
-
-COPY CreateProfile.psm1 C:/
-
-# Create user and user directory
-RUN Import-Module -Force C:/CreateProfile.psm1 ; `
-    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
-    Remove-Item -Force C:/CreateProfile.psm1
-
-VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
-WORKDIR "${JENKINS_AGENT_WORK}"
+# Add tools to PATH
+ENV ProgramFiles="C:\Program Files"
+ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
