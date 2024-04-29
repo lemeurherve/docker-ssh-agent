@@ -101,10 +101,10 @@ function Test-Image {
     $TestResults = Invoke-Pester -Configuration $configuration
     $failed = $false
     if ($TestResults.FailedCount -gt 0) {
-        Write-Host -ForegroundColor Green "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
+        Write-Host -ForegroundColor Cyan "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
         $failed = $true
     } else {
-        Write-Host -ForegroundColor Red "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
+        Write-Host -ForegroundColor Cyan "There were $($TestResults.PassedCount) passed tests in ${ImageName}"
     }
     Remove-Item env:\IMAGE_NAME
 
@@ -167,10 +167,10 @@ if($target -eq 'test') {
 
         # Fail if any test failures
         if($testFailed -ne $false) {
-            Write-Error -ForegroundColor Red '= TEST: stage failed!'
+            Write-Error -ForegroundColor Cyan '= TEST: stage failed!'
             exit 1
         } else {
-            Write-Host -ForegroundColor Green '= TEST: stage passed!'
+            Write-Host -ForegroundColor Cyan '= TEST: stage passed!'
         }
     }
 }
@@ -190,8 +190,8 @@ if($target -eq 'publish') {
 }
 
 if($lastExitCode -ne 0) {
-    Write-Error -ForegroundColor Red 'Build failed!'
+    Write-Error -ForegroundColor Cyan '= BUILD: Failed!'
 } else {
-    Write-Host -ForegroundColor Green 'Build finished successfully'
+    Write-Host -ForegroundColor Cyan '= BUILD: Finished successfully'
 }
 exit $lastExitCode
