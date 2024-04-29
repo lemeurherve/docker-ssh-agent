@@ -125,9 +125,9 @@ ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
 ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
-# # Ensure the jenkins user can run sshd
-# USER jenkins
-# RUN $ErrorActionPreference = 'Continue' ; & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; $ErrorActionPreference = 'Stop'
+# Ensure the jenkins user can run sshd
+USER jenkins
+RUN $ErrorActionPreference = 'Continue' ; & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; $ErrorActionPreference = 'Stop'
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
