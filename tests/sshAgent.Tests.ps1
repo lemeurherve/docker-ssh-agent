@@ -69,7 +69,6 @@ Cleanup($global:CONTAINERNAME)
 
 Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
     BeforeAll {
-        # $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`" `"$global:CONTAINERSHELL`""
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
@@ -135,7 +134,9 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
         $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
+        $shortOpenSSHVersion = $global:OPENSSHVERSION.Replace('v', '').Replace('.0', '')
+        Write-Host "shortOpenSSHVersion: $shortOpenSSHVersion"
+        $stdout.Trim() | Should -Match $shortOpenSSHVersion
     }
 
     AfterAll {
