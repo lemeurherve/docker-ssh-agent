@@ -68,7 +68,7 @@ Describe "[$global:IMAGE_NAME] image is present" {
 
 Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
     BeforeAll {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:CONTAINERSHELL`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`"" `"$global:CONTAINERSHELL`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
