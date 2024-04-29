@@ -111,10 +111,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($newOwner, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow') ; `
     $acl.SetOwner($rule) ; `
     Set-Acl -Path $folderPath -AclObject $acl ; `
-    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
-
-
-
+    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
 
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
