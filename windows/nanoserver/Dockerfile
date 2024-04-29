@@ -107,7 +107,6 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     $folderPath = 'C:\ProgramData\ssh' ; `
     $newOwner = 'jenkins' ; `
-
     $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
     $acl = Get-Acl -Path $folderPath ; `
     $acl.SetOwner($newOwnerIdentity) ; `
