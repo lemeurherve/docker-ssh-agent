@@ -32,7 +32,6 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-USER ContainerAdministrator
 
 ARG JAVA_HOME
 ENV PSHOME="C:\Program Files\PowerShell"
@@ -44,9 +43,26 @@ COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 COPY --from=pwsh-source $PSHOME $PSHOME
 
+ARG user=jenkins
+ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
+ENV JENKINS_AGENT_USER ${user}
+ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
+
+USER ContainerAdministrator
+
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
     New-Item -Path "C:\jdk-${javaMajorVersion}" -ItemType SymbolicLink -Value "${env:JAVA_HOME}"
+
+COPY CreateProfile.psm1 C:/
+
+# Create user and user directory
+RUN Import-Module -Force C:/CreateProfile.psm1 ; `
+    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
+    Remove-Item -Force C:/CreateProfile.psm1
+
+VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
+WORKDIR "${JENKINS_AGENT_WORK}"
 
 # Install git
 ARG GIT_VERSION=2.44.0
@@ -103,31 +119,16 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
-# Add tools to PATH
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
-ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
-
-# Create user and user directory
-ARG user=jenkins
-ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
-ENV JENKINS_AGENT_USER ${user}
-ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
-
-COPY CreateProfile.psm1 C:/
-
-RUN Import-Module -Force C:/CreateProfile.psm1 ; `
-    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
-    Remove-Item -Force C:/CreateProfile.psm1
-
-VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
-WORKDIR "${JENKINS_AGENT_WORK}"
-
 # Ensure user can run sshd
 USER "${user}"
 RUN $ErrorActionPreference = 'Continue' ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
     $ErrorActionPreference = 'Stop'
+
+# Add tools to PATH
+ENV ProgramFiles="C:\Program Files"
+ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
