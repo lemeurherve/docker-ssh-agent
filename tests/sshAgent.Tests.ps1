@@ -134,7 +134,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
         $exitCode | Should -Be 0
-        $shortOpenSSHVersion = $global:OPENSSHVERSION.Replace('v', '').Replace('V', '').Replace('.0', '')
+        $shortOpenSSHVersion = $global:OPENSSHVERSION.Replace('v', '', 'OrdinalIgnoreCase').Replace('.0', '').Replace('p-beta1', 'p1','OrdinalIgnoreCase')  # Ex: V8.6.0.0p-beta1 => 8.6p1
         Write-Host "shortOpenSSHVersion: $shortOpenSSHVersion"
         $stdout.Trim() | Should -Match "$shortOpenSSHVersion"
     }
