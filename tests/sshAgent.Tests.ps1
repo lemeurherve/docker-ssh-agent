@@ -126,6 +126,8 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
     }
 
     It 'has SSH installed and in the path' {
+        Start-Sleep -Seconds 10
+
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"Get-Command ssh.exe -ErrorAction SilentlyContinue`""
         $exitCode | Should -Be 0
         $stdout | Should -Match "ssh.exe"
@@ -137,10 +139,11 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
     }
 
     It 'can connect via SSH to localhost' {
+        Start-Sleep -Seconds 10
+
         $SSH_PORT=Get-Port $global:CONTAINERNAME 22
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh.exe -v jenkins@127.0.0.1 -p $SSH_PORT`""
         $exitCode | Should -Be 0
-        Start-Sleep -Seconds 10
         $stdout | Should -Match 'OpenSSH'
         $stdout.Trim() | Should -Match 'OpenSSH'
     }
