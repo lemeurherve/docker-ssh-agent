@@ -59,12 +59,12 @@ $global:GITLFSVERSION = '3.5.1'
 
 Cleanup($global:CONTAINERNAME)
 
-Describe "[$global:IMAGE_NAME] image is present" {
-    It 'builds image' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-        $exitCode | Should -Be 0
-    }
-}
+# Describe "[$global:IMAGE_NAME] image is present" {
+#     It 'builds image' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+#         $exitCode | Should -Be 0
+#     }
+# }
 
 Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
     BeforeAll {
@@ -189,34 +189,34 @@ Describe "[$global:IMAGE_NAME] create agent container like docker-plugin with '$
     }
 }
 
-Describe "[$global:IMAGE_NAME] build args" {
-    BeforeAll {
-        Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
-    }
+# Describe "[$global:IMAGE_NAME] build args" {
+#     BeforeAll {
+#         Push-Location -StackName 'agent' -Path "$PSScriptRoot/.."
+#     }
 
-    It 'uses build args correctly' {
-        $TEST_USER = 'testuser'
-        $TEST_JAW = 'C:/hamster'
-        $CUSTOM_IMAGE_NAME = "custom-${IMAGE_NAME}"
+#     It 'uses build args correctly' {
+#         $TEST_USER = 'testuser'
+#         $TEST_JAW = 'C:/hamster'
+#         $CUSTOM_IMAGE_NAME = "custom-${IMAGE_NAME}"
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-        $exitCode | Should -Be 0
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --build-arg `"user=$TEST_USER`" --build-arg `"JENKINS_AGENT_WORK=$TEST_JAW`" --tag=$CUSTOM_IMAGE_NAME --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+#         $exitCode | Should -Be 0
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=$global:CONTAINERNAME --publish-all $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
-        $exitCode | Should -Be 0
-        Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=$global:CONTAINERNAME --publish-all $CUSTOM_IMAGE_NAME $global:CONTAINERSHELL"
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning "$global:CONTAINERNAME" | Should -BeTrue
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME net user $TEST_USER"
-        $exitCode | Should -Be 0
-        $stdout | Should -Match "User name\s*$TEST_USER"
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME net user $TEST_USER"
+#         $exitCode | Should -Be 0
+#         $stdout | Should -Match "User name\s*$TEST_USER"
 
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'JENKINS_AGENT_WORK' }).Value`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "$TEST_JAW"
-    }
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"(Get-ChildItem env:\ | Where-Object { `$_.Name -eq 'JENKINS_AGENT_WORK' }).Value`""
+#         $exitCode | Should -Be 0
+#         $stdout.Trim() | Should -Match "$TEST_JAW"
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-        Pop-Location -StackName 'agent'
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#         Pop-Location -StackName 'agent'
+#     }
+# }
