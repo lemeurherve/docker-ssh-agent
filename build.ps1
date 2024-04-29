@@ -111,9 +111,6 @@ function Test-Image {
     return $failed
 }
 
-$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
-$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
-
 Write-Host -ForegroundColor Cyan "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
 Invoke-Expression "$baseDockerCmd config"
 
