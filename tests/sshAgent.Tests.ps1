@@ -162,7 +162,7 @@ Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
 
 Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
     BeforeAll {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
         Start-Sleep -Seconds 10
