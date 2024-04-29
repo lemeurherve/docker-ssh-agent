@@ -110,13 +110,13 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
-# Add tools to PATH
-RUN $NewPath = '{0};{1}\bin;{2}' -f 'C:\Program Files\OpenSSH-Win64;C:\mingit\cmd;C:\Program Files\PowerShell', $env:JAVA_HOME, $env:PATH ; `
-    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
+# # Add tools to PATH
+# RUN $NewPath = '{0};{1}\bin;{2}' -f 'C:\Program Files\OpenSSH-Win64;C:\mingit\cmd;C:\Program Files\PowerShell', $env:JAVA_HOME, $env:PATH ; `
+#     Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath
 
-# ENV ProgramFiles="C:\Program Files"
-# ENV WindowsPATH="C:\Windows\system32;C:\Windows"
-# ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+ENV ProgramFiles="C:\Program Files"
+ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 COPY CreateProfile.psm1 C:/
 
