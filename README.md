@@ -198,11 +198,14 @@ make: 'bats' is up to date.
 
 ### Building and testing on Windows
 
-From a Powershell console, set first the `IMAGE_TYPE` environment variable defining the Windows flavor ("nanoserver"/"windowsservercore") and  version you want to build.
+From a Powershell console, first set:
+- The `IMAGE_TYPE` environment variable defining the Windows flavor ("nanoserver"/"windowsservercore") and  version you want to build.
+- The Docker Hub organisation you want to push your image to. (Optional)
 
 For example:
 ```
 New-Item -Path env:IMAGE_TYPE -Value "nanoserver-ltsc2019"
+New-Item -Path env:DOCKERHUB_ORGANISATION -Value "my-dockerhub-org"
 ```
 
 Then run `.\build.ps1` to launch the build of the images for each jexdk specified in the build-windows.yaml docker compose file.
