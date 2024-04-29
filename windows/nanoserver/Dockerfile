@@ -86,6 +86,8 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Invoke-WebRequest -Uri $url -OutFile 'C:\openssh.zip' -UseBasicParsing ; `
     Expand-Archive -Path 'C:\openssh.zip' -DestinationPath 'C:\Program Files' ; `
     Remove-Item -Path 'C:\openssh.zip' ; `
+    $NewPath = '{0};{1}' -f 'C:\Program Files\OpenSSH-Win64', $env:PATH ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath ; `
     if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
     Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config' ; `
     $content = Get-Content -Path 'C:\ProgramData\ssh\sshd_config' ; `
