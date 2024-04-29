@@ -105,7 +105,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent' ; `
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
-    $folderPath = 'C:\Path\To\Your\Folder' ; `
+    $folderPath = 'C:\ProgramData\ssh' ; `
     $newOwner = 'jenkins' ; `
     $acl = Get-Acl -Path $folderPath ; `
     $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($newOwner, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow') ; `
