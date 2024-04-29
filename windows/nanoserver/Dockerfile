@@ -78,7 +78,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Write-Host "Retrieving $url..." ; `
     Invoke-WebRequest $url -OutFile 'GitLfs.zip' -UseBasicParsing ; `
     Expand-Archive GitLfs.zip -DestinationPath c:\mingit\mingw64\bin ; `
-    $gitLfsFolder = 'c:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION ; `
+    $gitLfsFolder = 'C:\mingit\mingw64\bin\git-lfs-{0}' -f $env:GIT_LFS_VERSION ; `
     Move-Item -Path "${gitLfsFolder}\git-lfs.exe" -Destination c:\mingit\mingw64\bin\ ; `
     Remove-Item -Path $gitLfsFolder -Recurse -Force ; `
     Remove-Item GitLfs.zip -Force ; `
@@ -107,11 +107,11 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
                         -replace 'Match Group administrators','' `
                         -replace '(\s*)AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys','' `
                 } | `
-    Set-Content -Path "C:\ProgramData\ssh\sshd_config" ; `
-    Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'ChallengeResponseAuthentication no' ; `
-    Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent' ; `
-    Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
-    Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
+    Set-Content -Path 'C:\ProgramData\ssh\sshd_config' ; `
+    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value 'ChallengeResponseAuthentication no' ; `
+    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent' ; `
+    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
+    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
