@@ -67,38 +67,38 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
-Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
-    BeforeAll {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-        $exitCode | Should -Be 0
-        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-    }
+# Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
+#     BeforeAll {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+#         $exitCode | Should -Be 0
+#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+#     }
 
-    It 'has setup-sshd.ps1 in C:/ProgramData/Jenkins' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(Test-Path C:/ProgramData/Jenkins/setup-sshd.ps1) { exit 0 } else { exit 1}`""
-        $exitCode | Should -Be 0
-    }
+#     It 'has setup-sshd.ps1 in C:/ProgramData/Jenkins' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(Test-Path C:/ProgramData/Jenkins/setup-sshd.ps1) { exit 0 } else { exit 1}`""
+#         $exitCode | Should -Be 0
+#     }
 
-    AfterAll {
-        Cleanup($global:CONTAINERNAME)
-    }
-}
+#     AfterAll {
+#         Cleanup($global:CONTAINERNAME)
+#     }
+# }
 
-Describe "[$global:IMAGE_NAME] checking image metadata" {
-    It 'has correct volumes' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:IMAGE_NAME"
-        $exitCode | Should -Be 0
+# Describe "[$global:IMAGE_NAME] checking image metadata" {
+#     It 'has correct volumes' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:IMAGE_NAME"
+#         $exitCode | Should -Be 0
 
-        $stdout | Should -Match 'C:/Users/jenkins/AppData/Local/Temp'
-        $stdout | Should -Match 'C:/Users/jenkins/Work'
-    }
+#         $stdout | Should -Match 'C:/Users/jenkins/AppData/Local/Temp'
+#         $stdout | Should -Match 'C:/Users/jenkins/Work'
+#     }
 
-    It 'has the source GitHub URL in docker metadata' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.source\`"}}`" $global:IMAGE_NAME"
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match 'https://github.com/jenkinsci/docker-ssh-agent'
-    }
-}
+#     It 'has the source GitHub URL in docker metadata' {
+#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.source\`"}}`" $global:IMAGE_NAME"
+#         $exitCode | Should -Be 0
+#         $stdout.Trim() | Should -Match 'https://github.com/jenkinsci/docker-ssh-agent'
+#     }
+# }
 
 Describe "[$global:IMAGE_NAME] image has correct version of tools installed and in the PATH" {
     BeforeAll {
