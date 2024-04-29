@@ -124,11 +124,6 @@ RUN Import-Module -Force C:/CreateProfile.psm1 ; `
 VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
 WORKDIR "${JENKINS_AGENT_WORK}"
 
-# # Ensure sshd can be started
-# RUN $ErrorActionPreference = 'Continue' ; `
-#     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
-#     $ErrorActionPreference = 'Stop'
-
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
 EXPOSE 22
