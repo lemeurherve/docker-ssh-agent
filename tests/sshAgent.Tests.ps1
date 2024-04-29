@@ -69,7 +69,8 @@ Cleanup($global:CONTAINERNAME)
 
 Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
     BeforeAll {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`" `"$global:CONTAINERSHELL`""
+        # $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`" `"$global:CONTAINERSHELL`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
@@ -103,7 +104,8 @@ Describe "[$global:IMAGE_NAME] checking image metadata" {
 Describe "[$global:IMAGE_NAME] image has correct version of tools installed and in the PATH" {
     BeforeAll {
         # --tty is needed here to retrieve test outputs
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        # $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`" `"$global:CONTAINERSHELL`""
         $exitCode | Should -Be 0
         Is-ContainerRunning $global:CONTAINERNAME
     }
@@ -133,8 +135,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
         $exitCode | Should -Be 0
-        Write-Host "-------> ssh -V: $stdout"
-        # $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
+        $stdout.Trim() | Should -Match "OpenSSH_${global:OPENSSHVERSION}"
     }
 
     AfterAll {
