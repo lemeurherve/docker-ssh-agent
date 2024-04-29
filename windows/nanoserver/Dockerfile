@@ -120,13 +120,13 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
-USER jenkins
-RUN $ErrorActionPreference = 'Continue' ; & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; $ErrorActionPreference = 'Stop'
-
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
 ENV PATH="${ProgramFiles}\OpenSSH-Win64;${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+
+USER jenkins
+RUN $ErrorActionPreference = 'Continue' ; & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; $ErrorActionPreference = 'Stop'
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
