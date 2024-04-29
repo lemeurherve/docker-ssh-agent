@@ -94,8 +94,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive -Path 'C:\openssh.zip' -DestinationPath 'C:\Program Files' ; `
     Remove-Item -Path 'C:\openssh.zip' ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
-    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null ; `
-    if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
+    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
+
+# hadolint ignore=DL3059
+RUN if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null } ; `
     Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config' ; `
     $content = Get-Content -Path 'C:\ProgramData\ssh\sshd_config' ; `
     $content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no' `
@@ -111,14 +113,20 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value 'ChallengeResponseAuthentication no' ; `
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent' ; `
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
-    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
-    $folderPath = 'C:\ProgramData\ssh' ; `
-    $newOwner = 'jenkins' ; `
-    $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
-    $acl = Get-Acl -Path $folderPath ; `
-    $acl.SetOwner($newOwnerIdentity) ; `
-    Set-Acl -Path $folderPath -AclObject $acl ; `
-    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
+    Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER)
+
+# hadolint ignore=DL3059
+RUN $ErrorActionPreference = 'Continue' ; `
+    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
+    $ErrorActionPreference = 'Stop'
+
+    # $folderPath = 'C:\ProgramData\ssh' ; `
+    # $newOwner = 'jenkins' ; `
+    # $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
+    # $acl = Get-Acl -Path $folderPath ; `
+    # $acl.SetOwner($newOwnerIdentity) ; `
+    # Set-Acl -Path $folderPath -AclObject $acl ; `
+    # & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
 
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
