@@ -127,16 +127,13 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
     }
 
     It 'has SSH installed and in the path' {
-        Start-Sleep -Seconds 10
-
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
         $exitCode | Should -Be 0
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
         $exitCode | Should -Be 0
         $shortOpenSSHVersion = $global:OPENSSHVERSION.ToLower().Replace('v', '').Replace('.0', '').Replace('p1-beta', 'p1')  # Ex: V8.6.0.0p-Beta1 => 8.6p1
-        Write-Host "shortOpenSSHVersion: $shortOpenSSHVersion"
-        $stdout.Trim() | Should -Match "_$shortOpenSSHVersion"
+        $stdout.Trim() | Should -Match "_$shortOpenSSHVersion,"
     }
 
     AfterAll {
