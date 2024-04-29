@@ -125,7 +125,7 @@ Describe "[$global:IMAGE_NAME] image has correct version of tools installed and 
         $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
     }
 
-    It 'has SSH installed and in the path' {
+    It 'has ssh installed and in the path' {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
         $exitCode | Should -Be 0
 
