@@ -60,124 +60,124 @@ $global:OPENSSHVERSION = 'v9.5.0.0p1-Beta'
 
 Cleanup($global:CONTAINERNAME)
 
-# Describe "[$global:IMAGE_NAME] image is present" {
-#     It 'builds image' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
-#         $exitCode | Should -Be 0
-#     }
-# }
+Describe "[$global:IMAGE_NAME] image is present" {
+    It 'builds image' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "build --build-arg `"WINDOWS_VERSION_TAG=${global:WINDOWSVERSIONTAG}`" --build-arg `"TOOLS_WINDOWS_VERSION=${global:TOOLSWINDOWSVERSION}`" --build-arg `"JAVA_VERSION=${global:JAVAMAJORVERSION}`" --build-arg `"JAVA_HOME=C:\openjdk-${global:JAVAMAJORVERSION}`" --tag=${global:IMAGE_TAG} --file ./windows/${global:WINDOWSFLAVOR}/Dockerfile ."
+        $exitCode | Should -Be 0
+    }
+}
 
-# Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#     }
+Describe "[$global:IMAGE_NAME] image has setup-sshd.ps1 in the correct location" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
 
-#     It 'has setup-sshd.ps1 in C:/ProgramData/Jenkins' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(Test-Path C:/ProgramData/Jenkins/setup-sshd.ps1) { exit 0 } else { exit 1}`""
-#         $exitCode | Should -Be 0
-#     }
+    It 'has setup-sshd.ps1 in C:/ProgramData/Jenkins' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(Test-Path C:/ProgramData/Jenkins/setup-sshd.ps1) { exit 0 } else { exit 1}`""
+        $exitCode | Should -Be 0
+    }
 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
-# Describe "[$global:IMAGE_NAME] checking image metadata" {
-#     It 'has correct volumes' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:IMAGE_NAME"
-#         $exitCode | Should -Be 0
+Describe "[$global:IMAGE_NAME] checking image metadata" {
+    It 'has correct volumes' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format '{{.Config.Volumes}}' $global:IMAGE_NAME"
+        $exitCode | Should -Be 0
 
-#         $stdout | Should -Match 'C:/Users/jenkins/AppData/Local/Temp'
-#         $stdout | Should -Match 'C:/Users/jenkins/Work'
-#     }
+        $stdout | Should -Match 'C:/Users/jenkins/AppData/Local/Temp'
+        $stdout | Should -Match 'C:/Users/jenkins/Work'
+    }
 
-#     It 'has the source GitHub URL in docker metadata' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.source\`"}}`" $global:IMAGE_NAME"
-#         $exitCode | Should -Be 0
-#         $stdout.Trim() | Should -Match 'https://github.com/jenkinsci/docker-ssh-agent'
-#     }
-# }
+    It 'has the source GitHub URL in docker metadata' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "inspect --format=`"{{index .Config.Labels \`"org.opencontainers.image.source\`"}}`" $global:IMAGE_NAME"
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match 'https://github.com/jenkinsci/docker-ssh-agent'
+    }
+}
 
-# Describe "[$global:IMAGE_NAME] image has correct version of tools installed and in the PATH" {
-#     BeforeAll {
-#         # --tty is needed here to retrieve test outputs
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME
-#     }
+Describe "[$global:IMAGE_NAME] image has correct version of tools installed and in the PATH" {
+    BeforeAll {
+        # --tty is needed here to retrieve test outputs
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME
+    }
 
-#     It 'has java installed and in the path' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command java.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
-#         $exitCode | Should -Be 0
+    It 'has java installed and in the path' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command java.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
+        $exitCode | Should -Be 0
 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = java -version 2>&1 ; Write-Host `$version`""
-#         $r = [regex] "^openjdk version `"(?<major>\d+)"
-#         $m = $r.Match($stdout)
-#         $m | Should -Not -Be $null
-#         $m.Groups['major'].ToString() | Should -Be "$global:JAVAMAJORVERSION"
-#     }
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = java -version 2>&1 ; Write-Host `$version`""
+        $r = [regex] "^openjdk version `"(?<major>\d+)"
+        $m = $r.Match($stdout)
+        $m | Should -Not -Be $null
+        $m.Groups['major'].ToString() | Should -Be "$global:JAVAMAJORVERSION"
+    }
 
-#     It 'has git-lfs (and thus git) installed and in the path' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
-#         $exitCode | Should -Be 0
-#         $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
-#     }
+    It 'has git-lfs (and thus git) installed and in the path' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs version`""
+        $exitCode | Should -Be 0
+        $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
+    }
 
-#     It 'has ssh installed and in the path' {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
-#         $exitCode | Should -Be 0
+    It 'has ssh installed and in the path' {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"if(`$null -eq (Get-Command ssh.exe -ErrorAction SilentlyContinue)) { exit -1 } else { exit 0 }`""
+        $exitCode | Should -Be 0
 
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
-#         $exitCode | Should -Be 0
-#         $shortOpenSSHVersion = $global:OPENSSHVERSION.ToLower().Replace('v', '').Replace('.0', '').Replace('p1-beta', 'p1')  # Ex: V8.6.0.0p-Beta1 => 8.6p1
-#         $stdout.Trim() | Should -Match "_$shortOpenSSHVersion,"
-#     }
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = ssh -V 2>&1 ; Write-Host `$version`""
+        $exitCode | Should -Be 0
+        $shortOpenSSHVersion = $global:OPENSSHVERSION.ToLower().Replace('v', '').Replace('.0', '').Replace('p1-beta', 'p1')  # Ex: V8.6.0.0p-Beta1 => 8.6p1
+        $stdout.Trim() | Should -Match "_$shortOpenSSHVersion,"
+    }
 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
-# Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#         Start-Sleep -Seconds 10
-#     }
+Describe "[$global:IMAGE_NAME] create agent container with pubkey as argument" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        Start-Sleep -Seconds 10
+    }
 
-#     It 'runs commands via ssh' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#     }
+    It 'runs commands via ssh' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+    }
 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
-# Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#         Start-Sleep -Seconds 10
-#     }
+Describe "[$global:IMAGE_NAME] create agent container with pubkey as envvar" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --name=`"$global:CONTAINERNAME`" --publish-all --env=`"JENKINS_AGENT_SSH_PUBKEY=$global:PUBLIC_SSH_KEY`" `"$global:IMAGE_NAME`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+        Start-Sleep -Seconds 10
+    }
 
-#     It 'runs commands via ssh' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#         Start-Sleep -Seconds 10
-#     }
+    It 'runs commands via ssh' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+        Start-Sleep -Seconds 10
+    }
 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+    AfterAll {
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
 $global:DOCKER_PLUGIN_DEFAULT_ARG = '/usr/sbin/sshd -D -p 22'
 Describe "[$global:IMAGE_NAME] create agent container like docker-plugin, i.e. with '$global:DOCKER_PLUGIN_DEFAULT_ARG' as argument which should be ignored" {
