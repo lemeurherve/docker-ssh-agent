@@ -66,11 +66,6 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Expand-Archive -Path 'mingit.zip' -DestinationPath 'C:\mingit' ; `
     Remove-Item -Path 'mingit.zip' -Force
 
-# Add java & git to PATH
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
-
 # Install git-lfs
 ARG GIT_LFS_VERSION=3.5.1
 RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 ; `
@@ -114,6 +109,14 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
+
+# Add tools to PATH
+RUN $NewPath = '{0};{1}\bin;{2}' -f 'C:\Program Files\OpenSSH-Win64;C:\mingit\cmd;C:\Program Files\PowerShell', $env:JAVA_HOME, $env:PATH ; `
+    Set-ItemProperty -path 'hklm:\system\currentcontrolset\control\session manager\environment' -Name Path -Value $NewPath ; `
+
+# ENV ProgramFiles="C:\Program Files"
+# ENV WindowsPATH="C:\Windows\system32;C:\Windows"
+# ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
 
 COPY CreateProfile.psm1 C:/
 
