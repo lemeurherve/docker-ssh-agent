@@ -107,9 +107,10 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     $folderPath = 'C:\ProgramData\ssh' ; `
     $newOwner = 'jenkins' ; `
+
+    $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
     $acl = Get-Acl -Path $folderPath ; `
-    $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($newOwner, 'FullControl', 'ContainerInherit, ObjectInherit', 'None', 'Allow') ; `
-    $acl.SetOwner($rule) ; `
+    $acl.SetOwner($newOwnerIdentity) ; `
     Set-Acl -Path $folderPath -AclObject $acl ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
 
