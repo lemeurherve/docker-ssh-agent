@@ -44,14 +44,14 @@ COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 COPY --from=pwsh-source $PSHOME $PSHOME
 
+# Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
+RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
+    New-Item -Path "C:\jdk-${javaMajorVersion}" -ItemType SymbolicLink -Value "${env:JAVA_HOME}"
+
 ARG user=jenkins
 ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
 ENV JENKINS_AGENT_USER ${user}
 ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
-
-# Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
-RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
-    New-Item -Path "C:\jdk-${javaMajorVersion}" -ItemType SymbolicLink -Value "${env:JAVA_HOME}"
 
 COPY CreateProfile.psm1 C:/
 
