@@ -42,6 +42,12 @@ COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
 COPY --from=pwsh-source $PSHOME $PSHOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+ARG user=jenkins
+ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
+ENV JENKINS_AGENT_USER ${user}
+ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
+
 USER ContainerAdministrator
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
@@ -77,11 +83,6 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item -Path $gitLfsFolder -Recurse -Force ; `
     Remove-Item GitLfs.zip -Force ; `
     & C:\mingit\cmd\git.exe lfs install
-
-ARG user=jenkins
-ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
-ENV JENKINS_AGENT_USER ${user}
-ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
 
 # Setup SSH server
 ARG OPENSSH_VERSION=V8.6.0.0p1-Beta
