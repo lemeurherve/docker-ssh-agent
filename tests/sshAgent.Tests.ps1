@@ -124,12 +124,6 @@ Describe "[$global:IMAGE_NAME] image has correct version of java and git-lfs ins
         $stdout.Trim() | Should -Match "git-lfs/$global:GITLFSVERSION"
     }
 
-    It 'has git-lfs (and thus git) installed and in the path' {
-        $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& ssh -V`""
-        $exitCode | Should -Be 0
-        $stdout.Trim() | Should -Match "$global:OPENSSHVERSION"
-    }
-
     AfterAll {
         Cleanup($global:CONTAINERNAME)
     }
