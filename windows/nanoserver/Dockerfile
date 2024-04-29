@@ -108,6 +108,12 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
+# Ensure user can run sshd
+USER "${user}"
+RUN $ErrorActionPreference = 'Continue' ; `
+    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
+    $ErrorActionPreference = 'Stop'
+
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
@@ -122,12 +128,6 @@ RUN Import-Module -Force C:/CreateProfile.psm1 ; `
 
 VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
 WORKDIR "${JENKINS_AGENT_WORK}"
-
-# Ensure user can run sshd
-USER "${user}"
-RUN $ErrorActionPreference = 'Continue' ; `
-    & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
-    $ErrorActionPreference = 'Stop'
 
 COPY setup-sshd.ps1 C:/ProgramData/Jenkins/setup-sshd.ps1
 
