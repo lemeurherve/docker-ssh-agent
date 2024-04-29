@@ -124,7 +124,7 @@ VOLUME "${JENKINS_AGENT_WORK}" "C:/Users/${user}/AppData/Local/Temp"
 WORKDIR "${JENKINS_AGENT_WORK}"
 
 # Ensure user can run sshd
-USER jenkins
+USER $user
 RUN $ErrorActionPreference = 'Continue' ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
     $ErrorActionPreference = 'Stop'
