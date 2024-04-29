@@ -120,7 +120,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null
 
 # Ensure jenkins user can run sshd
-USER jenkins
+USER "${user}"
 RUN $ErrorActionPreference = 'Continue' ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
     $ErrorActionPreference = 'Stop'
