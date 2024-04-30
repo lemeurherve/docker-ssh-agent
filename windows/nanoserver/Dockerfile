@@ -119,11 +119,20 @@ RUN if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\P
 RUN $folderPath = 'C:\ProgramData\ssh' ; `
     (Get-Acl $folderPath).Access ; `
     Write-Host -fore Cyan ((Get-Acl $folderPath).Access) ; `
-    $newOwner = 'BUILTIN\Users' ; `
-    $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
+    $fileSystemRightToRemove = '268435456' ; `
     $acl = Get-Acl -Path $folderPath ; `
-    $acl.SetOwner($newOwnerIdentity) ; `
+    $accessRulesToRemove = $acl.Access | Where-Object { $_.FileSystemRights -eq $fileSystemRightToRemove } ; `
+    foreach ($accessRule in $accessRulesToRemove) { ; `
+        Write-Host -fore Blue "=== DELETED"
+        $acl.RemoveAccessRule($accessRule) ; `
+    } ; `
     Set-Acl -Path $folderPath -AclObject $acl
+
+    # $newOwner = 'BUILTIN\Users' ; `
+    # $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
+    # $acl = Get-Acl -Path $folderPath ; `
+    # $acl.SetOwner($newOwnerIdentity) ; `
+    # Set-Acl -Path $folderPath -AclObject $acl
 
 # hadolint ignore=DL3059
 RUN $ErrorActionPreference = 'Continue' ; `
