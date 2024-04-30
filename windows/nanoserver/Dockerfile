@@ -122,8 +122,8 @@ RUN $folderPath = 'C:\ProgramData\ssh' ; `
     $fileSystemRightToRemove = '268435456' ; `
     $acl = Get-Acl -Path $folderPath ; `
     $accessRulesToRemove = $acl.Access | Where-Object { $_.FileSystemRights -eq $fileSystemRightToRemove } ; `
-    foreach ($accessRule in $accessRulesToRemove) { ; `
-        Write-Host -fore Blue "=== DELETED"
+    foreach ($accessRule in $accessRulesToRemove) { `
+        Write-Host -fore Blue "=== DELETED" ; `
         $acl.RemoveAccessRule($accessRule) ; `
     } ; `
     Set-Acl -Path $folderPath -AclObject $acl
