@@ -117,6 +117,8 @@ RUN if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\P
 
 # hadolint ignore=DL3059
 RUN $folderPath = 'C:\ProgramData\ssh' ; `
+    (Get-Acl $folderPath).Access ; `
+    Write-Host -fore Cyan ((Get-Acl $folderPath).Access) ; `
     $newOwner = 'BUILTIN\Users' ; `
     $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
     $acl = Get-Acl -Path $folderPath ; `
