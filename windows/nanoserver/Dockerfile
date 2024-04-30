@@ -53,6 +53,13 @@ ARG JENKINS_AGENT_WORK="C:/Users/${user}/Work"
 ENV JENKINS_AGENT_USER ${user}
 ENV JENKINS_AGENT_WORK ${JENKINS_AGENT_WORK}
 
+COPY CreateProfile.psm1 C:/
+
+# Create user and user directory
+RUN Import-Module -Force C:/CreateProfile.psm1 ; `
+    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
+    Remove-Item -Force C:/CreateProfile.psm1
+
 # Install git
 ARG GIT_VERSION=2.44.0
 ARG GIT_PATCH_VERSION=1
@@ -108,14 +115,6 @@ RUN if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\P
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
     Add-Content -Path 'C:\ProgramData\ssh\sshd_config' -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER)
 
-# # hadolint ignore=DL3059
-# RUN $folderPath = 'C:\ProgramData\ssh' ; `
-#     $newOwner = 'jenkins' ; `
-#     $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
-#     $acl = Get-Acl -Path $folderPath ; `
-#     $acl.SetOwner($newOwnerIdentity) ; `
-#     Set-Acl -Path $folderPath -AclObject $acl
-
 # hadolint ignore=DL3059
 RUN $ErrorActionPreference = 'Continue' ; `
     & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1' ; `
@@ -129,13 +128,6 @@ RUN $ErrorActionPreference = 'Continue' ; `
     # Set-Acl -Path $folderPath -AclObject $acl ; `
     # & 'C:\Program Files\OpenSSH-Win64\install-sshd.ps1'
 
-COPY CreateProfile.psm1 C:/
-
-# Create user and user directory
-RUN Import-Module -Force C:/CreateProfile.psm1 ; `
-    New-UserWithProfile -UserName $env:JENKINS_AGENT_USER -Description 'Jenkins Agent User' ; `
-    Remove-Item -Force C:/CreateProfile.psm1
-    
 # Add tools to PATH
 ENV ProgramFiles="C:\Program Files"
 ENV WindowsPATH="C:\Windows\system32;C:\Windows"
