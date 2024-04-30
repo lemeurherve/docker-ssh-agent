@@ -121,7 +121,7 @@ RUN $folderPath = 'C:\ProgramData\ssh' ; `
     $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
     $acl = Get-Acl -Path $folderPath ; `
     $acl.SetOwner($newOwnerIdentity) ; `
-    Set-Acl -Path $folderPath -AclObject $acl ; `
+    Set-Acl -Path $folderPath -AclObject $acl
 
 # hadolint ignore=DL3059
 RUN $ErrorActionPreference = 'Continue' ; `
