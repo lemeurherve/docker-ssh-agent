@@ -117,7 +117,7 @@ RUN if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\P
 
 # hadolint ignore=DL3059
 RUN $folderPath = 'C:\ProgramData\ssh' ; `
-    $newOwner = 'jenkins' ; `
+    $newOwner = 'BUILTIN\Users' ; `
     $newOwnerIdentity = New-Object System.Security.Principal.NTAccount("$NewOwner") ; `
     $acl = Get-Acl -Path $folderPath ; `
     $acl.SetOwner($newOwnerIdentity) ; `
