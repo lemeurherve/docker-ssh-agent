@@ -104,13 +104,18 @@ if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\Progr
 # # # Set the modified ACL back to the folder
 # # Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
 
-& icacls 'C:\ProgramData\ssh' /remove "CREATOR OWNER" /T /C >nul:
+& icacls 'C:\ProgramData\ssh' /remove "CREATOR OWNER" /T /C
 
 
 
+Write-Host "===== after:"
 (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
-$after = (Get-Acl 'C:\ProgramData\ssh').Access
-Write-Host "===== after: $after"
+
+icacls "$InstanceTempFilePath" /inheritance:d;
+icacls "$InstanceTempFilePath" /remove "CREATOR OWNER";
+
+Write-Host "===== after2:"
+(Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
 
 
 & 'C:/Program Files/OpenSSH-Win64/Install-SSHd.ps1'
