@@ -1,3 +1,50 @@
+# https://david-homer.blogspot.com/2022/10/powershell-get-acl-displays-unknown.html
+# Corrects the NTFS file system rights standardizing GENERIC_* permissions.
+Function Get-FileSystemRights
+{
+
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [int] $RightsValue
+    )
+
+    $GENERIC_ALL = [int]268435456;
+    $GENERIC_READ = [int]-2147483648;
+    $GENERIC_WRITE = [int]1073741824;
+    $GENERIC_EXECUTE =[int]536870912;
+
+    if (($RightsValue -band $GENERIC_ALL) -eq $GENERIC_ALL) { return [System.Security.AccessControl.FileSystemRights]::FullControl; }
+
+    if (($RightsValue -band $GENERIC_READ) -eq $GENERIC_READ)
+    {
+
+        $RightsValue = $RightsValue -= $GENERIC_READ;
+
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Read;
+
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Synchronize;
+
+    }
+
+    if (($RightsValue -band $GENERIC_WRITE) -eq $GENERIC_WRITE)
+    {
+        $RightsValue = $RightsValue -= $GENERIC_WRITE;
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Write;
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Synchronize;
+    }
+
+    if (($RightsValue -band $GENERIC_EXECUTE) -eq $GENERIC_EXECUTE)
+    {
+        $RightsValue = $RightsValue -= $GENERIC_EXECUTE;
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Traverse;
+        $RightsValue = $RightsValue += [int][System.Security.AccessControl.FileSystemRights]::Synchronize;
+    }
+
+    return [System.Security.AccessControl.FileSystemRights] $RightsValue;
+
+} 
+
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $url = 'https://github.com/PowerShell/Win32-OpenSSH/releases/download/{0}/OpenSSH-Win64.zip' -f $env:OPENSSH_VERSION
 Write-Host "Retrieving $url..."
@@ -15,39 +62,50 @@ Write-Host "Current Group: $CurrentGroup"
 
 if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null }
 
-(Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
-$before = (Get-Acl 'C:\ProgramData\ssh').Access
-Write-Host "===== before: $before"
+# (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
+# $before = (Get-Acl 'C:\ProgramData\ssh').Access
+# Write-Host "===== before: $before"
 
 
-# Define the path to the folder
-$FolderPath = 'C:\ProgramData\ssh'
+# # Define the path to the folder
+# $FolderPath = 'C:\ProgramData\ssh'
 
-# Define the identity of the ACL entry you want to remove (e.g., user or group)
-$IdentityToRemove = 'CREATOR OWNER'
-$AccessRightsToRemove = "Write"  # Specify the access rights to remove
+# # Define the identity of the ACL entry you want to remove (e.g., user or group)
+# $IdentityToRemove = 'CREATOR OWNER'
+# $AccessRightsToRemove = "Write"  # Specify the access rights to remove
 
-# Get the current ACL of the folder
-$FolderAcl = Get-Acl -Path $FolderPath
+# # # Get the current ACL of the folder
+# # $FolderAcl = Get-Acl -Path $FolderPath
 
-# Find and remove the specific access rule from the ACL
-$AccessRuleToRemove = $FolderAcl.Access | Where-Object { $_.FileSystemRights -eq $AccessRightsToRemove }
+# # # Find and remove the specific access rule from the ACL
+# # $AccessRuleToRemove = $FolderAcl.Access | Where-Object { $_.FileSystemRights -eq $AccessRightsToRemove }
 
-if ($AccessRuleToRemove -ne $null) {
-    $FolderAcl.RemoveAccessRule($AccessRuleToRemove)
+# # if ($AccessRuleToRemove -ne $null) {
+# #     $FolderAcl.RemoveAccessRule($AccessRuleToRemove)
     
-    # Apply the modified ACL back to the folder
-    Set-Acl -Path $FolderPath -AclObject $FolderAcl
-    Write-Host "Access rule removed successfully."
-} else {
-    Write-Host "Access rule not found."
-}
+# #     # Apply the modified ACL back to the folder
+# #     Set-Acl -Path $FolderPath -AclObject $FolderAcl
+# #     Write-Host "Access rule removed successfully."
+# # } else {
+# #     Write-Host "Access rule not found."
+# # }
 
-# # Find and remove the specific ACL entry from the ACL
-# $UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRemove }
+# $acl = (Get-Acl $FolderPath).Access;
+# foreach ($ace in $acl)
+# {
+#     Write-Host $ace.IdentityReference $ace.FileSystemRights (Get-FileSystemRights -RightsValue $ace.FileSystemRights);
 
-# # Set the modified ACL back to the folder
-# Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
+# }
+
+
+# # # Find and remove the specific ACL entry from the ACL
+# # $UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRemove }
+
+# # # Set the modified ACL back to the folder
+# # Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
+
+& icacls 'C:\ProgramData\ssh' /remove "CREATOR OWNER" /T /C >nul:
+
 
 
 (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
