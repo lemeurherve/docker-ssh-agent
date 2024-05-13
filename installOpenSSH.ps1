@@ -15,7 +15,7 @@ Write-Host "Current Group: $CurrentGroup"
 
 if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null }
 
-(Get-Acl 'C:\ProgramData\ssh').Access | Format-List | Get-Member
+(Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
 $before = (Get-Acl 'C:\ProgramData\ssh').Access
 Write-Host "===== before: $before"
 
@@ -36,7 +36,7 @@ $UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRe
 Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
 
 
-(Get-Acl 'C:\ProgramData\ssh').Access | Format-List | Get-Member
+(Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
 $after = (Get-Acl 'C:\ProgramData\ssh').Access
 Write-Host "===== after: $after"
 
