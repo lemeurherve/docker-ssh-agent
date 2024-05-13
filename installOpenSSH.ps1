@@ -124,13 +124,13 @@ Write-Host "===== after2:"
 
 Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config'
 $content = Get-Content -Path "C:\ProgramData\ssh\sshd_config"
-$content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no'
-                    -replace '#PasswordAuthentication.*','PasswordAuthentication no'
-                    -replace '#PermitEmptyPasswords.*','PermitEmptyPasswords no'
-                    -replace '#PubkeyAuthentication.*','PubkeyAuthentication yes'
-                    -replace '#SyslogFacility.*','SyslogFacility LOCAL0'
-                    -replace '#LogLevel.*','LogLevel INFO'
-                    -replace 'Match Group administrators',''
+$content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no' `
+                    -replace '#PasswordAuthentication.*','PasswordAuthentication no' `
+                    -replace '#PermitEmptyPasswords.*','PermitEmptyPasswords no' `
+                    -replace '#PubkeyAuthentication.*','PubkeyAuthentication yes' `
+                    -replace '#SyslogFacility.*','SyslogFacility LOCAL0' `
+                    -replace '#LogLevel.*','LogLevel INFO' `
+                    -replace 'Match Group administrators','' `
                     -replace '(\s*)AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys',''
             } |
 Set-Content -Path "C:\ProgramData\ssh\sshd_config"
