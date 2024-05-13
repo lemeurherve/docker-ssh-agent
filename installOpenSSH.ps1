@@ -111,8 +111,8 @@ if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\Progr
 Write-Host "===== after:"
 (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
 
-icacls "$InstanceTempFilePath" /inheritance:d;
-icacls "$InstanceTempFilePath" /remove "CREATOR OWNER";
+icacls 'C:\ProgramData\ssh' /inheritance:d;
+icacls 'C:\ProgramData\ssh' /remove "CREATOR OWNER";
 
 Write-Host "===== after2:"
 (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
