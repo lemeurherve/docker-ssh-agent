@@ -23,17 +23,31 @@ Write-Host "===== before: $before"
 # Define the path to the folder
 $FolderPath = 'C:\ProgramData\ssh'
 
+# Define the identity of the ACL entry you want to remove (e.g., user or group)
+$IdentityToRemove = 'CREATOR OWNER'
+$AccessRightsToRemove = "Write"  # Specify the access rights to remove
+
 # Get the current ACL of the folder
 $FolderAcl = Get-Acl -Path $FolderPath
 
-# Define the identity of the ACL entry you want to remove (e.g., user or group)
-$IdentityToRemove = 'CREATOR OWNER'
+# Find and remove the specific access rule from the ACL
+$AccessRuleToRemove = $FolderAcl.Access | Where-Object { $_.FileSystemRights -eq $AccessRightsToRemove }
 
-# Find and remove the specific ACL entry from the ACL
-$UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRemove }
+if ($AccessRuleToRemove -ne $null) {
+    $FolderAcl.RemoveAccessRule($AccessRuleToRemove)
+    
+    # Apply the modified ACL back to the folder
+    Set-Acl -Path $FolderPath -AclObject $FolderAcl
+    Write-Host "Access rule removed successfully."
+} else {
+    Write-Host "Access rule not found."
+}
 
-# Set the modified ACL back to the folder
-Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
+# # Find and remove the specific ACL entry from the ACL
+# $UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRemove }
+
+# # Set the modified ACL back to the folder
+# Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
 
 
 (Get-Acl 'C:\ProgramData\ssh').Access | Format-Table -AutoSize
