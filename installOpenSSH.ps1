@@ -5,19 +5,56 @@ Invoke-WebRequest -Uri $url -OutFile C:/openssh.zip -UseBasicParsing
 Expand-Archive c:/openssh.zip 'C:/Program Files'
 Remove-Item C:/openssh.zip
 $env:PATH = '{0};{1}' -f $env:PATH,'C:\Program Files\OpenSSH-Win64'
-& 'C:/Program Files/OpenSSH-Win64/Install-SSHd.ps1'
+
+$CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+Write-Host "Current User: $CurrentUser"
+$CurrentGroup = [System.Security.Principal.WindowsIdentity]::GetCurrent().Groups.Translate([System.Security.Principal.NTAccount]).Value
+Write-Host "Current Group: $CurrentGroup"
+
+
+
 if(!(Test-Path 'C:\ProgramData\ssh')) { New-Item -Type Directory -Path 'C:\ProgramData\ssh' | Out-Null }
+
+
+$before = (Get-Acl 'C:\ProgramData\ssh').Access
+Write-Host "===== before: $before"
+
+
+# Define the path to the folder
+$FolderPath = 'C:\ProgramData\ssh'
+
+# Get the current ACL of the folder
+$FolderAcl = Get-Acl -Path $FolderPath
+
+# Define the identity of the ACL entry you want to remove (e.g., user or group)
+$IdentityToRemove = 'CREATOR OWNER'
+
+# Find and remove the specific ACL entry from the ACL
+$UpdatedAcl = $FolderAcl | Where-Object { $_.IdentityReference -ne $IdentityToRemove }
+
+# Set the modified ACL back to the folder
+Set-Acl -Path $FolderPath -AclObject $UpdatedAcl
+
+
+$after = (Get-Acl 'C:\ProgramData\ssh').Access
+Write-Host "===== after: $after"
+
+
+& 'C:/Program Files/OpenSSH-Win64/Install-SSHd.ps1'
+
+
+
 Copy-Item 'C:\Program Files\OpenSSH-Win64\sshd_config_default' 'C:\ProgramData\ssh\sshd_config'
 $content = Get-Content -Path "C:\ProgramData\ssh\sshd_config"
-$content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no' `
-                    -replace '#PasswordAuthentication.*','PasswordAuthentication no' `
-                    -replace '#PermitEmptyPasswords.*','PermitEmptyPasswords no' `
-                    -replace '#PubkeyAuthentication.*','PubkeyAuthentication yes' `
-                    -replace '#SyslogFacility.*','SyslogFacility LOCAL0' `
-                    -replace '#LogLevel.*','LogLevel INFO' `
-                    -replace 'Match Group administrators','' `
-                    -replace '(\s*)AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys','' `
-            } | `
+$content | ForEach-Object { $_ -replace '#PermitRootLogin.*','PermitRootLogin no'
+                    -replace '#PasswordAuthentication.*','PasswordAuthentication no'
+                    -replace '#PermitEmptyPasswords.*','PermitEmptyPasswords no'
+                    -replace '#PubkeyAuthentication.*','PubkeyAuthentication yes'
+                    -replace '#SyslogFacility.*','SyslogFacility LOCAL0'
+                    -replace '#LogLevel.*','LogLevel INFO'
+                    -replace 'Match Group administrators',''
+                    -replace '(\s*)AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys',''
+            } |
 Set-Content -Path "C:\ProgramData\ssh\sshd_config"
 Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'ChallengeResponseAuthentication no'
 Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value 'HostKeyAgent \\.\pipe\openssh-ssh-agent'
