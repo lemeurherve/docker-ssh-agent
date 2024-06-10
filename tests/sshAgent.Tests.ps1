@@ -1,6 +1,6 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:0.0.1-nanoserver-ltsc2022-jdk11
+$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:0.0.1-nanoserver-ltsc2019-jdk17
 $global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
 
 $imageItems = $global:IMAGE_NAME.Split(':')
