@@ -128,7 +128,7 @@ if (Test-Path $dockerComposeFile) {
 
     # Retrieve the targets from docker buildx bake --print output
     # Remove the 'output' section (unsupported by docker compose)
-    # For each target name as service key return a map consisting of:
+    # For each target name as service key, return a map consisting of:
     # - 'image' set to the first tag value and
     # - 'build' set to the content of the bake target
     $yqMainQuery = '''.target[]' + `
