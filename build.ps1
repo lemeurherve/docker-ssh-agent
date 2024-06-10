@@ -78,6 +78,7 @@ Function Test-CommandExists {
 
 Test-CommandExists 'docker'
 Test-CommandExists 'docker-compose'
+Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
 function Test-Image {
@@ -117,10 +118,45 @@ function Test-Image {
     return $failed
 }
 
-$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
+$dockerBakeFile = 'docker-bake.hcl'
+$dockerComposeFile = 'build-windows.yaml'
+
+$baseDockerBakeCmd = 'docker buildx bake --file={0}' -f $dockerBakeFile
+$baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-Write-Host "= PREPARE: List of images and tags to be processed:"
+# Generate the docker compose file from the docker bake file if it doesn't exist
+if (Test-Path $dockerComposeFile) {
+    Write-Host '= PREPARE: the docker compose file "{0}" containing the image definitions already exists.' -f $dockerComposeFile
+} else {
+    Write-Host '= PREPARE: the docker compose file ''{0}'' containing the image definitions doesn''t exists, generating it from {1}:' -f $dockerComposeFile, $dockerBakeFile
+    $windowsFlavor = '["{0}"]' -f $env:WINDOWS_FLAVOR
+    $windowsVersion = '["{1}"]' -f $env:WINDOWS_VERSION_TAG
+
+    # Retrieve the targets from docker buildx bake --print output
+    # Remove the 'output' section (unsupported by docker compose)
+    # For each target name as service key return a map consisting of:
+    # - 'image' set to the first tag value and
+    # - 'build' set to the content of the bake target
+    $yqMainQuery = '''.target[]' + `
+        ' | del(.output)' + `
+        ' | {(. | key): {"image": .tags[0], "build": .}}'''
+    # Encapsulate under a top level 'services' map
+    $yqServicesQuery = '''{"services": .}'''
+
+    # Define the windows flavor and windows version depending on the image type to build
+    # Use docker buildx bake to output image definitions from the "windows" docker bake target
+    # Convert with yq to the format expected by docker compose
+    # Store the result in the docker compose file
+    $generateDockerComposeFileCmd = 'WINDOWS_FLAVORS_TO_BUILD={0} WINDOWS_VERSIONS_TO_BUILD={1}' + `
+        ' {2} windows --print' + `
+        ' | yq --pretty {3} | yq {4}' + `
+        ' | Out-File -FilePath {5}' -f $windowsFlavor, $windowsVersion, $baseDockerBakeCmd, $yqMainQuery, $yqServicesQuery, $dockerComposeFile
+
+    Invoke-Expression $generateDockerComposeFileCmd
+}
+
+Write-Host '= PREPARE: List of images and tags to be processed:'
 Invoke-Expression "$baseDockerCmd config"
 
 Write-Host '= BUILD: Building all images...'
