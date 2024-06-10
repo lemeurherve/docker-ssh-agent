@@ -6,6 +6,12 @@ group "linux" {
   ]
 }
 
+group "windows" {
+  targets = [
+    "allwindows"
+  ]
+}
+
 group "linux-arm64" {
   targets = [
     "debian",
@@ -84,6 +90,16 @@ variable "DEBIAN_RELEASE" {
   default = "bookworm-20240513"
 }
 
+# TODO: comment about JSON as string to override these values with env vars
+variable "WINDOWS_FLAVORS_TO_BUILD" {
+  default = "[\"nanoserver\",\"windowsservercore\"]"
+}
+
+# TODO: comment about avoiding windowservercore + 1809, incompatible
+variable "WINDOWS_VERSIONS_TO_BUILD" {
+  default = "[\"1809\",\"ltsc2019\",\"ltsc2022\"]"
+}
+
 ## Common functions
 # Return "true" if the jdk passed as parameter is the same as the default jdk, "false" otherwise
 function "is_default_jdk" {
@@ -116,6 +132,27 @@ function "debian_platforms" {
   result = (equal(17, jdk)
     ? ["linux/amd64", "linux/arm64", "linux/ppc64le"]
   : ["linux/amd64", "linux/arm64", "linux/ppc64le", "linux/s390x"])
+}
+
+# Return array of Windows flavor(s) to build
+function "windowsflavors" {
+  params = [flavors]
+  result = jsondecode(flavors)
+}
+
+# Return array of Windows version(s) to build
+function "windowsversions" {
+  params = [versions]
+  result = jsondecode(versions)
+}
+
+# Return the Windows version to use as base image for the Windows version passed as parameter
+# There are no mcr.microsoft.com/powershell ltsc2019 base images, only "1809" ones
+function "toolsversion" {
+  params = [version]
+  result = (equal("ltsc2019", version)
+    ? "1809"
+    : version)
 }
 
 target "alpine" {
@@ -191,4 +228,30 @@ target "debian_jdk21-preview" {
     "${REGISTRY}/${JENKINS_REPO}:latest-jdk21-preview",
   ]
   platforms = ["linux/arm/v7"]
+}
+
+target "allwindows" {
+  matrix = {
+    jdk = jdks_to_build
+    windows_flavor = windowsflavors(WINDOWS_FLAVORS_TO_BUILD)
+    windows_version = windowsversions(WINDOWS_VERSIONS_TO_BUILD)
+  }
+  name       = "${windows_flavor}-${windows_version}_jdk${jdk}"
+  dockerfile = "windows/${windows_flavor}/Dockerfile"
+  context    = "."
+  args = {
+    JAVA_HOME = "C:/openjdk-${jdk}"
+    JAVA_VERSION   = "${replace(javaversion(jdk), "_", "+")}"
+    WINDOWS_VERSION_TAG = windows_version
+    TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
+  }
+  tags = [
+    # If there is a tag, add versioned tag suffixed by the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-${windows_flavor}-${windows_version}-jdk${jdk}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-${windows_flavor}-${windows_version}" : "") : "",
+    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${windows_flavor}-${windows_version}" : "") : "",
+    "${REGISTRY}/${JENKINS_REPO}:${windows_flavor}-${windows_version}-jdk${jdk}",
+  ]
+  platforms = ["windows/amd64"]
 }
