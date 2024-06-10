@@ -1,6 +1,6 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
-$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:nanoserver-1809-jdk17
+$global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:0.0.1-nanoserver-ltsc2022-jdk11
 $global:JAVA_VERSION = Get-EnvOrDefault 'JAVA_VERSION' ''
 
 $imageItems = $global:IMAGE_NAME.Split(':')
@@ -8,12 +8,12 @@ $global:IMAGE_TAG = $imageItems[1]
 
 $items = $global:IMAGE_TAG.Split('-')
 # Remove the 'jdk' prefix
-$global:JAVAMAJORVERSION = $items[2].Remove(0,3)
-$global:WINDOWSFLAVOR = $items[0]
-$global:WINDOWSVERSIONTAG = $items[1]
-$global:TOOLSWINDOWSVERSION = $items[1]
+$global:JAVAMAJORVERSION = $items[3].Remove(0,3)
+$global:WINDOWSFLAVOR = $items[1]
+$global:WINDOWSVERSIONTAG = $items[2]
+$global:TOOLSWINDOWSVERSION = $items[2]
 # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
-if ($items[1] -eq 'ltsc2019') {
+if ($items[2] -eq 'ltsc2019') {
     $global:TOOLSWINDOWSVERSION = '1809'
 }
 

@@ -3,7 +3,8 @@ Param(
     [Parameter(Position=1)]
     [String] $Target = 'build',
     [String] $Build = '',
-    [String] $VersionTag = '1.0-1',
+    [String] $VersionTag = '0.0.1',
+    [String] $ImageType = 'nanoserver-ltsc2019',
     [switch] $DryRun = $false,
     # Output debug info for tests. Accepted values:
     # - empty (no additional test output)
@@ -17,7 +18,6 @@ $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downl
 
 $Repository = 'ssh-agent'
 $Organisation = 'jenkins'
-$ImageType = 'windows-ltsc2019'
 
 if(![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
     $TestsDebug = $env:TESTS_DEBUG
@@ -44,15 +44,6 @@ if(![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
 $env:DOCKERHUB_ORGANISATION = "$Organisation"
 $env:DOCKERHUB_REPO = "$Repository"
 $env:VERSION = "$VersionTag"
-
-$items = $ImageType.Split('-')
-$env:WINDOWS_FLAVOR = $items[0]
-$env:WINDOWS_VERSION_TAG = $items[1]
-$env:TOOLS_WINDOWS_VERSION = $items[1]
-if ($items[1] -eq 'ltsc2019') {
-    # There are no eclipse-temurin:*-ltsc2019 or mcr.microsoft.com/powershell:*-ltsc2019 docker images unfortunately, only "1809" ones
-    $env:TOOLS_WINDOWS_VERSION = '1809'
-}
 
 # Check for required commands
 Function Test-CommandExists {
@@ -86,8 +77,9 @@ function Test-Image {
         $ImageNameAndJavaVersion
     )
 
+    # Ex: docker.io/jenkins/ssh-agent:0.0.1-windowsservercore-ltsc2019-jdk21|21.0.3_9
     $items = $ImageNameAndJavaVersion.Split('|')
-    $imageName = $items[0]
+    $imageName = $items[0] -replace 'docker.io/', ''
     $javaVersion = $items[1]
     $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
@@ -130,8 +122,9 @@ if (Test-Path $dockerComposeFile) {
     Write-Host '= PREPARE: the docker compose file "{0}" containing the image definitions already exists.' -f $dockerComposeFile
 } else {
     Write-Host '= PREPARE: the docker compose file ''{0}'' containing the image definitions doesn''t exists, generating it from {1}:' -f $dockerComposeFile, $dockerBakeFile
-    $windowsFlavor = '["{0}"]' -f $env:WINDOWS_FLAVOR
-    $windowsVersion = '["{1}"]' -f $env:WINDOWS_VERSION_TAG
+    $items = $ImageType.Split('-')
+    $windowsFlavor = '["{0}"]' -f $items[0]
+    $windowsVersion = '["{1}"]' -f $items[1]
 
     # Retrieve the targets from docker buildx bake --print output
     # Remove the 'output' section (unsupported by docker compose)
