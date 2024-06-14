@@ -19,11 +19,8 @@ $Repository = 'ssh-agent'
 $Organisation = 'jenkins'
 $ImageType = 'windows-ltsc2019'
 
-$baseDockerCmd = 'docker-compose --file=build-windows.yaml'
-$baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
-
 if(![String]::IsNullOrWhiteSpace($env:TESTS_DEBUG)) {
-    $ImageType = $env:IMAGE_TYPE
+    $TestsDebug = $env:TESTS_DEBUG
 }
 $env:TESTS_DEBUG = $TestsDebug
 
@@ -33,6 +30,10 @@ if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_REPO)) {
 
 if(![String]::IsNullOrWhiteSpace($env:DOCKERHUB_ORGANISATION)) {
     $Organisation = $env:DOCKERHUB_ORGANISATION
+}
+
+if(![String]::IsNullOrWhiteSpace($env:VERSION)) {
+    $VersionTag = $env:VERSION
 }
 
 if(![String]::IsNullOrWhiteSpace($env:IMAGE_TYPE)) {
@@ -84,10 +85,10 @@ function Test-Image {
         $ImageNameAndJavaVersion
     )
 
-    $items = $ImageNameAndJavaVersion.Split("|")
+    $items = $ImageNameAndJavaVersion.Split('|')
     $imageName = $items[0]
     $javaVersion = $items[1]
-    $imageNameItems = $imageName.Split(":")
+    $imageNameItems = $imageName.Split(':')
     $imageTag = $imageNameItems[1]
 
     Write-Host "= TEST: Testing ${ImageName} image"
@@ -119,15 +120,15 @@ function Test-Image {
 $baseDockerCmd = 'docker-compose --file=build-windows.yaml'
 $baseDockerBuildCmd = '{0} build --parallel --pull' -f $baseDockerCmd
 
-Write-Host "= PREPARE: List of $Organisation/$env:DOCKERHUB_REPO images and tags to be processed:"
+Write-Host "= PREPARE: List of images and tags to be processed:"
 Invoke-Expression "$baseDockerCmd config"
 
 Write-Host '= BUILD: Building all images...'
-    switch ($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
-        $false { Invoke-Expression $baseDockerBuildCmd }
-    }
-    Write-Host '= BUILD: Finished building all images.'
+switch ($DryRun) {
+    $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
+    $false { Invoke-Expression $baseDockerBuildCmd }
+}
+Write-Host '= BUILD: Finished building all images.'
 
 if($lastExitCode -ne 0) {
     exit $lastExitCode
