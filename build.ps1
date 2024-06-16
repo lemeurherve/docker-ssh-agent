@@ -82,7 +82,8 @@ Function Test-CommandExists {
 
 function Test-Image {
     param (
-        $ImageNameAndJavaVersion
+        [String] $ImageNameAndJavaVersion,
+        [Object] $Configuration
     )
 
     # Ex: docker.io/jenkins/ssh-agent:windowsservercore-ltsc2019-jdk21|21.0.3_9
@@ -103,8 +104,8 @@ function Test-Image {
     }
     New-Item -Path $targetPath -Type Directory | Out-Null
     # $configuration.Run.Path = 'tests\sshAgent.Tests.ps1'
-    $configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
-    $TestResults = Invoke-Pester -Configuration $configuration
+    $Configuration.TestResult.OutputPath = '{0}\junit-results.xml' -f $targetPath
+    $TestResults = Invoke-Pester -Configuration $Configuration
     $failed = $false
     if ($TestResults.FailedCount -gt 0) {
         Write-Host "There were $($TestResults.FailedCount) failed tests out of $($TestResults.TotalCount) in ${ImageName}"
@@ -154,6 +155,34 @@ function Initialize-DockerComposeFile {
     Remove-Item env:\WINDOWS_VERSION_OVERRIDE
 }
 
+function Initialize-Pester {
+    $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
+    if($null -eq $mod) {
+        Write-Host '= TEST: Pester 5.3.x not found: installing...'
+        $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
+        if(Test-Path $module) {
+            takeown /F $module /A /R
+            icacls $module /reset
+            icacls $module /grant Administrators:'F' /inheritance:d /T
+            Remove-Item -Path $module -Recurse -Force -Confirm:$false
+        }
+        Install-Module -Force -Name Pester -MaximumVersion 5.3.3
+    }
+
+    Import-Module Pester
+    Write-Host '= TEST: Setting up Pester environment...'
+    $configuration = [PesterConfiguration]::Default
+    $configuration.Run.PassThru = $true
+    $configuration.Run.Path = '.\tests'
+    $configuration.Run.Exit = $true
+    $configuration.TestResult.Enabled = $true
+    $configuration.TestResult.OutputFormat = 'JUnitXml'
+    $configuration.Output.Verbosity = 'Diagnostic'
+    $configuration.CodeCoverage.Enabled = $false
+
+    return $configuration
+}
+
 Test-CommandExists 'docker'
 Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
@@ -186,37 +215,15 @@ if($target -eq 'test') {
         Write-Host '= TEST: (dry-run) test harness'
     } else {
         Write-Host '= TEST: Starting test harness'
-
-        $mod = Get-InstalledModule -Name Pester -MinimumVersion 5.3.0 -MaximumVersion 5.3.3 -ErrorAction SilentlyContinue
-        if($null -eq $mod) {
-            Write-Host '= TEST: Pester 5.3.x not found: installing...'
-            $module = 'C:\Program Files\WindowsPowerShell\Modules\Pester'
-            if(Test-Path $module) {
-                takeown /F $module /A /R
-                icacls $module /reset
-                icacls $module /grant Administrators:'F' /inheritance:d /T
-                Remove-Item -Path $module -Recurse -Force -Confirm:$false
-            }
-            Install-Module -Force -Name Pester -MaximumVersion 5.3.3
-        }
-
-        Import-Module Pester
-        Write-Host '= TEST: Setting up Pester environment...'
-        $configuration = [PesterConfiguration]::Default
-        $configuration.Run.PassThru = $true
-        $configuration.Run.Path = '.\tests'
-        $configuration.Run.Exit = $true
-        $configuration.TestResult.Enabled = $true
-        $configuration.TestResult.OutputFormat = 'JUnitXml'
-        $configuration.Output.Verbosity = 'Diagnostic'
-        $configuration.CodeCoverage.Enabled = $false
+        $configuration = Initialize-Pester
 
         Write-Host '= TEST: Testing all images...'
         # Only fail the run afterwards in case of any test failures
         $testFailed = $false
         $definitions = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
         foreach ($definition in $definitions.PSObject.Properties) {
-            $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $definition.Value.image, $definition.Value.build.args.JAVA_VERSION))
+            $sut = '{0}|{1}' -f $definition.Value.image, $definition.Value.build.args.JAVA_VERSION
+            $testFailed = $testFailed -or (Test-Image $sut -Configuration $configuration)
         }
 
         # Fail if any test failures
