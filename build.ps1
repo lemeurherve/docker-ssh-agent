@@ -214,9 +214,9 @@ if($target -eq 'test') {
         Write-Host '= TEST: Testing all images...'
         # Only fail the run afterwards in case of any test failures
         $testFailed = $false
-        $definitions = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
-        foreach ($definition in $definitions.PSObject.Properties) {
-            $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $definition.Value.image, $definition.Value.build.args.JAVA_VERSION))
+        $composeServices = Invoke-Expression "$baseDockerCmd config" | yq --unwrapScalar --output-format json '.services' | ConvertFrom-Json
+        $composeServices.PSObject.Properties | ForEach-Object -Parallel {
+            $testFailed = $testFailed -or (Test-Image ('{0}|{1}' -f $_.Value.image, $_.Value.build.args.JAVA_VERSION))
         }
 
         # Fail if any test failures
