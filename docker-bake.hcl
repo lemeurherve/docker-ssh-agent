@@ -87,7 +87,7 @@ variable "WINDOWS_VERSION_OVERRIDE" {
 
 ## Common functions
 # Return "true" if the jdk passed as parameter is the same as the default jdk, "false" otherwise
-function "is_default_jdk" {
+function "isdefaultjdk" {
   params = [jdk]
   result = equal(default_jdk, jdk) ? "true" : "false"
 }
@@ -152,19 +152,20 @@ target "alpine" {
     ALPINE_TAG   = ALPINE_FULL_TAG
     JAVA_VERSION = "${javaversion(jdk)}"
   }
-  tags = [
-    # If there is a tag, add versioned tags suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-alpine-jdk${jdk}" : "",
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-alpine${ALPINE_SHORT_TAG}-jdk${jdk}" : "",
-    # If the jdk is the default one, add Alpine short tags
-    is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:alpine" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}" : "",
-    is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}" : "",
-    "${REGISTRY}/${JENKINS_REPO}:alpine-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
-  ]
+  tags = tags("alpine", jdk)
+  // tags = [
+  //   # If there is a tag, add versioned tags suffixed by the jdk
+  //   equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-alpine-jdk${jdk}" : "",
+  //   equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-alpine${ALPINE_SHORT_TAG}-jdk${jdk}" : "",
+  //   # If the jdk is the default one, add Alpine short tags
+  //   isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:alpine" : "",
+  //   isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}" : "",
+  //   isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}" : "",
+  //   "${REGISTRY}/${JENKINS_REPO}:alpine-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:latest-alpine-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:latest-alpine${ALPINE_SHORT_TAG}-jdk${jdk}",
+  // ]
   platforms = alpine_platforms(jdk)
 }
 
@@ -179,20 +180,21 @@ target "debian" {
     DEBIAN_RELEASE = DEBIAN_RELEASE
     JAVA_VERSION   = "${javaversion(jdk)}"
   }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned short tag
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}" : "") : "",
-    # If the jdk is the default one, add latest short tag
-    is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:latest" : "",
-    "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:debian-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:latest-debian-jdk${jdk}",
-    "${REGISTRY}/${JENKINS_REPO}:latest-jdk${jdk}",
-  ]
+  tags = tags("debian", jdk)
+  // tags = [
+  //   # If there is a tag, add versioned tag suffixed by the jdk
+  //   equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-jdk${jdk}" : "",
+  //   # If there is a tag and if the jdk is the default one, add versioned short tag
+  //   equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}" : "") : "",
+  //   # If the jdk is the default one, add latest short tag
+  //   isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:latest" : "",
+  //   "${REGISTRY}/${JENKINS_REPO}:bookworm-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:debian-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:latest-bookworm-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:latest-debian-jdk${jdk}",
+  //   "${REGISTRY}/${JENKINS_REPO}:latest-jdk${jdk}",
+  // ]
   platforms = debian_platforms(jdk)
 }
 
@@ -210,14 +212,15 @@ target "nanoserver" {
     TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
     WINDOWS_VERSION_TAG   = windows_version
   }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-nanoserver-${windows_version}-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned and short tags
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-nanoserver-${windows_version}" : "") : "",
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:nanoserver-${windows_version}" : "") : "",
-    "${REGISTRY}/${JENKINS_REPO}:nanoserver-${windows_version}-jdk${jdk}",
-  ]
+  tags = tags("nanoserver-${windows_version}", jdk)
+  // tags = [
+  //   # If there is a tag, add versioned tag suffixed by the jdk
+  //   equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-nanoserver-${windows_version}-jdk${jdk}" : "",
+  //   # If there is a tag and if the jdk is the default one, add versioned and short tags
+  //   equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-nanoserver-${windows_version}" : "") : "",
+  //   equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:nanoserver-${windows_version}" : "") : "",
+  //   "${REGISTRY}/${JENKINS_REPO}:nanoserver-${windows_version}-jdk${jdk}",
+  // ]
   platforms = ["windows/amd64"]
 }
 
@@ -235,13 +238,14 @@ target "windowsservercore" {
     TOOLS_WINDOWS_VERSION = "${toolsversion(windows_version)}"
     WINDOWS_VERSION_TAG   = windows_version
   }
-  tags = [
-    # If there is a tag, add versioned tag suffixed by the jdk
-    equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-windowsservercore-${windows_version}-jdk${jdk}" : "",
-    # If there is a tag and if the jdk is the default one, add versioned and short tags
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-windowsservercore-${windows_version}" : "") : "",
-    equal(ON_TAG, "true") ? (is_default_jdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:windowsservercore-${windows_version}" : "") : "",
-    "${REGISTRY}/${JENKINS_REPO}:windowsservercore-${windows_version}-jdk${jdk}",
-  ]
+  tags = tags("nanoserver-${windows_version}", jdk)
+  // tags = [
+  //   # If there is a tag, add versioned tag suffixed by the jdk
+  //   equal(ON_TAG, "true") ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-windowsservercore-${windows_version}-jdk${jdk}" : "",
+  //   # If there is a tag and if the jdk is the default one, add versioned and short tags
+  //   equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:${VERSION}-windowsservercore-${windows_version}" : "") : "",
+  //   equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${JENKINS_REPO}:windowsservercore-${windows_version}" : "") : "",
+  //   "${REGISTRY}/${JENKINS_REPO}:windowsservercore-${windows_version}-jdk${jdk}",
+  // ]
   platforms = ["windows/amd64"]
 }
