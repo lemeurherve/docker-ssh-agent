@@ -44,7 +44,7 @@ variable "REGISTRY" {
   default = "docker.io"
 }
 
-variable "JENKINS_REPO" {
+variable "REGISTRY_REPOSITORY" {
   default = "jenkins/ssh-agent"
 }
 
@@ -100,6 +100,40 @@ function "javaversion" {
     : (equal(17, jdk)
       ? "${JAVA17_VERSION}"
   : "${JAVA21_VERSION}"))
+}
+
+# Return tags depending on the OS flavor and the jdk version
+function "tags" {
+  params = [flavor, jdk]
+  result = [
+    ## Common tags
+    # Default tag with OS flavor and jdk
+    "${REGISTRY}/${REGISTRY_REPOSITORY}:${flavor}-jdk${jdk}",
+    # If the jdk is the default one, add short tags
+    isdefaultjdk(jdk) ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${flavor}" : "",
+    # If there is a tag, add versioned tags with flavor suffixed by the jdk
+    equal(ON_TAG, "true") ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${VERSION}-${flavor}-jdk${jdk}" : "",
+    # If there is a tag and if the jdk is the default one, add versioned and short tags without jdk
+    equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${VERSION}-${flavor}" : "") : "",
+
+    ## Default Linux flavor tags (debian)
+    # Default tag with jdk
+    equal(flavor, "debian") ? "${REGISTRY}/${REGISTRY_REPOSITORY}:jdk${jdk}" : "",
+    # If the jdk is the default one, add latest short tag
+    equal(flavor, "debian") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${REGISTRY_REPOSITORY}:latest" : "") : "",
+    # If there is a tag and if default Linux flavor, add versioned tags suffixed by the jdk
+    equal(flavor, "debian") ? (equal(ON_TAG, "true") ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${VERSION}-jdk${jdk}" : "") : "",
+    # If there is a tag and if the jdk is the default one, add versioned short tag
+    equal(flavor, "debian") ? (equal(ON_TAG, "true") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${VERSION}" : "") : "") : "",
+
+    ## Alpine specific tags
+    # Default Alpine short tag
+    equal(flavor, "alpine") ? ("${REGISTRY}/${REGISTRY_REPOSITORY}:${flavor}${ALPINE_SHORT_TAG}-jdk${jdk}") : "",
+    # If the jdk is the default one, add Alpine short tag
+    equal(flavor, "alpine") ? (isdefaultjdk(jdk) ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${flavor}${ALPINE_SHORT_TAG}" : "") : "",
+    # If there is a tag, add versioned tags and Alpine short tag suffixed by the jdk
+    equal(flavor, "alpine") ? (equal(ON_TAG, "true") ? "${REGISTRY}/${REGISTRY_REPOSITORY}:${VERSION}-${flavor}${ALPINE_SHORT_TAG}-jdk${jdk}" : "") : "",
+  ]
 }
 
 ## Specific functions
