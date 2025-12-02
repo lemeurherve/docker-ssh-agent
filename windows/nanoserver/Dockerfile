@@ -1,4 +1,4 @@
-# escape=^
+# escape=`
 
 # The MIT License
 #
@@ -48,9 +48,9 @@ ARG JAVA_HOME
 ARG POWERSHELL_VERSION=7.5.4
 ENV POWERSHELL_VERSION=${POWERSHELL_VERSION}
 ENV PATH="C:\Windows\system32;C:\Windows;C:\Program Files\Powershell;"
-RUN curl.exe --silent --location "https://github.com/PowerShell/PowerShell/releases/download/v%POWERSHELL_VERSION%/PowerShell-%POWERSHELL_VERSION%-win-x64.zip" --output C:/windows/TEMP/pwsh.zip ^
-&& mkdir "C:\Program Files\Powershell" ^
-&& tar.exe -xf C:\windows\TEMP\pwsh.zip -C "C:\Program Files\Powershell" ^
+RUN curl.exe --silent --location "https://github.com/PowerShell/PowerShell/releases/download/v%POWERSHELL_VERSION%/PowerShell-%POWERSHELL_VERSION%-win-x64.zip" --output C:/windows/TEMP/pwsh.zip `
+&& mkdir "C:\Program Files\Powershell" `
+&& tar.exe -xf C:\windows\TEMP\pwsh.zip -C "C:\Program Files\Powershell" `
 && if exist "C:\windows\TEMP\pwsh.zip" del "C:\windows\TEMP\pwsh.zip"
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
