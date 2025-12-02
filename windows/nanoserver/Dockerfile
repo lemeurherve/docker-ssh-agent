@@ -1,5 +1,3 @@
-# escape=`
-
 # The MIT License
 #
 #  Copyright (c) 2019-2020, Alex Earl and other Jenkins Contributors
