@@ -166,6 +166,7 @@ Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
     BeforeAll {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
         $exitCode | Should -Be 0
+        $stdout | Should -Match 'Ignoring provided (linux) sshd command'
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
