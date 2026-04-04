@@ -22,6 +22,7 @@ $ProgressPreference = 'SilentlyContinue' # Disable Progress bar for faster downl
 
 $dockerComposeFile = 'build-windows.yaml'
 $baseDockerCmd = 'docker-compose --file={0}' -f $dockerComposeFile
+$baseDockerBakeCmd = 'docker buildx bake --file docker-bake.hcl {0}' -f $ImageType
 $baseDockerBuildCmd = '{0} build --pull' -f $baseDockerCmd
 
 $Repository = 'ssh-agent'
@@ -159,22 +160,22 @@ Test-CommandExists 'docker-compose'
 Test-CommandExists 'docker buildx'
 Test-CommandExists 'yq'
 
-# Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
-if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
-    Write-Host "= PREPARE: The docker compose file '$dockerComposeFile' containing the image definitions already exists."
-} else {
-    Write-Host "= PREPARE: Initialize the docker compose file '$dockerComposeFile' containing the image definitions."
-    Initialize-DockerComposeFile
-}
+# # Generate the docker compose file if it doesn't exists or if the parameter OverwriteDockerComposeFile is set
+# if ((Test-Path $dockerComposeFile) -and -not $OverwriteDockerComposeFile) {
+#     Write-Host "= PREPARE: The docker compose file '$dockerComposeFile' containing the image definitions already exists."
+# } else {
+#     Write-Host "= PREPARE: Initialize the docker compose file '$dockerComposeFile' containing the image definitions."
+#     Initialize-DockerComposeFile
+# }
 
 Write-Host '= PREPARE: List of images and tags to be processed:'
-Invoke-Expression "$baseDockerCmd config"
+Invoke-Expression "$baseDockerBakeCmd --print"
 
 if ($target -eq 'build') {
     Write-Host '= BUILD: Building all images...'
     switch ($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerBuildCmd" }
-        $false { Invoke-Expression $baseDockerBuildCmd }
+        $true { Write-Host "(dry-run) $baseDockerBakeCmd" }
+        $false { Invoke-Expression $baseDockerBakeCmd }
     }
     Write-Host '= BUILD: Finished building all images.'
 
@@ -227,8 +228,8 @@ if($target -eq 'test') {
 if($target -eq 'publish') {
     Write-Host '= PUBLISH: push all images and tags'
     switch($DryRun) {
-        $true { Write-Host "(dry-run) $baseDockerCmd push" }
-        $false { Invoke-Expression "$baseDockerCmd push" }
+        $true { Write-Host "(dry-run) $baseDockerBakeCmd --push" }
+        $false { Invoke-Expression "$baseDockerBakeCmd --push" }
     }
 
     # Fail if any issues when publising the docker images
