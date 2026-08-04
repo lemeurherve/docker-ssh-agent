@@ -82,7 +82,10 @@ while($null -ne $knownHostKeyVar) {
 }
 
 # ensure variables passed to docker container are also exposed to ssh sessions
-Get-ChildItem env: | ForEach-Object { setx /m $_.Name $_.Value | Out-Null }
+# skip PATH (managed by Windows), quote values, filter safe names
+Get-ChildItem env: | 
+    Where-Object { $_.Name -ne 'Path' } |
+    ForEach-Object { setx /m $_.Name "$($_.Value)" | Out-Null }
 
 if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
     Write-Host "$($MyInvocation.MyCommand.Name) param: '$Cmd'"
