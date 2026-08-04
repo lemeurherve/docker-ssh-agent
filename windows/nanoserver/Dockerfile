@@ -22,8 +22,14 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-ARG WINDOWS_VERSION_TAG
+# TODO: remove
 ARG TOOLS_WINDOWS_VERSION
+FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS debug-shipped-pwsh-version
+SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+USER ContainerAdministrator
+RUN $PSVersionTable
+
+ARG WINDOWS_VERSION_TAG
 FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-pwsh
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
@@ -40,7 +46,7 @@ RUN New-Item -ItemType Directory -Path $env:jdkTemp | Out-Null ; `
     Move-Item -Path $expandedDir.FullName -Destination $env:JAVA_HOME -Force ; `
     Remove-Item -Path $env:jdkTemp -Recurse | Out-Null
 
-# # TODO: try out older pwsh version not introducing `-ProgressAction`, making `-p` ambiguous between this new function and `-PipelineVariable`
+# # TODO: try out older pwsh version not introducing `-ProgressAction`, which seems to make `-p` ambiguous between this new function and `-PipelineVariable`
 # # and thus failing with -Command in ENTRYPOINT, making pwsh parses args, while -File doesn't
 # ARG PWSH_VERSION=7.2.24
 ARG PWSH_VERSION=7.5.4
