@@ -59,6 +59,7 @@ TUwLP4n7pK4J2sCIs6fRD5kEYms4BnddXeRuI2fGZHGH70Ci/Q==
 "@
 
 $global:GITLFSVERSION = '3.7.1'
+$global:PWSHVERSION = Get-EnvOrDefault 'PWSHVERSION' '7.5.4'
 
 Cleanup($global:CONTAINERNAME)
 
@@ -137,6 +138,15 @@ Describe "[$global:IMAGE_TAG] image has tools with proper versions and in the PA
         $m = $r.Match($stdout)
         $m | Should -Not -Be $null
         $m.Groups['version'].ToString() | Should -Be "$global:GITLFSVERSION"
+    }
+
+    # TODO: install pwsh in windowsservercore images too
+    if ($global:WINDOWSFLAVOR -eq 'nanoserver') {
+        It 'has the expected pwsh version' {
+            $exitCode, $stdout, $stderr = Run-Program 'docker' "run --rm `"$global:IMAGE_NAME`" pwsh.exe -NoLogo -C `"`$PSVersionTable.PSVersion.ToString()`""
+            $exitCode | Should -Be 0
+            $stdout.Trim() | Should -Match "^$([regex]::Escape($global:POWERSHELLVERSION))"
+        }
     }
 
     AfterAll {
