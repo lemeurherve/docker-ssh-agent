@@ -144,23 +144,24 @@ Cleanup($global:CONTAINERNAME)
 #     }
 # }
 
-# Describe "[$global:IMAGE_TAG] create agent container with pubkey as argument" {
-#     BeforeAll {
-#         $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
-#         $exitCode | Should -Be 0
-#         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
-#     }
+Describe "[$global:IMAGE_TAG] create agent container with pubkey as argument" {
+    BeforeAll {
+        $exitCode, $stdout, $stderr = Run-Program 'docker' "run --detach --tty --name=`"$global:CONTAINERNAME`" --publish-all `"$global:IMAGE_NAME`" `"$global:PUBLIC_SSH_KEY`""
+        $exitCode | Should -Be 0
+        Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
+    }
 
-#     It 'runs commands via ssh, container with pubkey as argument' {
-#         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
-#         $exitCode | Should -Be 0
-#         $stdout | Should -Match 'f00'
-#     }
+    It 'runs commands via ssh, container with pubkey as argument' {
+        $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
+        $exitCode | Should -Be 0
+        $stdout | Should -Match 'f00'
+    }
 
-#     AfterAll {
-#         Cleanup($global:CONTAINERNAME)
-#     }
-# }
+    AfterAll {
+        Get-ContainerDiagnostics($global:CONTAINERNAME)
+        Cleanup($global:CONTAINERNAME)
+    }
+}
 
 Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
     BeforeAll {
