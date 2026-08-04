@@ -141,6 +141,10 @@ function Run-ThruSSH($container, $privateKeyVal, $cmd) {
         $exitCode, $stdout, $stderr = Run-Program 'ssh.exe' "-v -i `"${TMP_PRIV_KEY_FILE}`" -o LogLevel=quiet -o UserKnownHostsFile=NUL -o StrictHostKeyChecking=no -l jenkins localhost -p $SSH_PORT $cmd"
         Remove-Item -Force $TMP_PRIV_KEY_FILE
 
+        if ($exitCode -ne 0) {
+            Get-ContainerDiagnostics($container)
+        }
+
         return $exitCode, $stdout, $stderr
     }
 }
