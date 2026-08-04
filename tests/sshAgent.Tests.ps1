@@ -176,6 +176,7 @@ Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
     }
 
     AfterAll {
+        Get-ContainerDiagnostics($global:CONTAINERNAME)
         Cleanup($global:CONTAINERNAME)
     }
 }
@@ -197,6 +198,7 @@ Describe "[$global:IMAGE_TAG] create agent container like docker-plugin with '$g
     }
 
     AfterAll {
+        Get-ContainerDiagnostics($global:CONTAINERNAME)
         Cleanup($global:CONTAINERNAME)
     }
 }
