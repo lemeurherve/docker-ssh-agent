@@ -53,7 +53,7 @@ FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
 ARG JAVA_HOME
 ARG PSTMP="C:\pwsh"
-ENV PSHOME="C:\Program Files\PowerShell\7"
+ENV PSHOME="C:\Program Files\PowerShell"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
@@ -135,7 +135,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('Match User {0}' -f $env:JENKINS_AGENT_USER) ; `
     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('       AuthorizedKeysFile C:/Users/{0}/.ssh/authorized_keys' -f $env:JENKINS_AGENT_USER) ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
-    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value ('{0}\pwsh.exe' -f $env:PSHOME) -PropertyType string -Force | Out-Null ; `
+    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null ; `
     Remove-Item -Path "C:\ProgramData\ssh\ssh_host*_key*"
 
 COPY CreateProfile.psm1 C:/
