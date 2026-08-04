@@ -58,7 +58,6 @@ SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPrefer
 USER ContainerAdministrator
 
 # Debug
-RUN Get-ChildItem -Path $env:PSHOME -Recurse
 RUN Get-ChildItem -Path 'C:' -Filter pwsh.exe -Recurse -ErrorAction SilentlyContinue
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
