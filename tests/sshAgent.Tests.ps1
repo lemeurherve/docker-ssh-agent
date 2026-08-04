@@ -151,7 +151,7 @@ Describe "[$global:IMAGE_TAG] create agent container with pubkey as argument" {
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
-    It 'runs commands via ssh' {
+    It 'runs commands via ssh, container with pubkey as argument' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
         $exitCode | Should -Be 0
         $stdout | Should -Match 'f00'
@@ -169,7 +169,7 @@ Describe "[$global:IMAGE_TAG] create agent container with pubkey as envvar" {
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
-    It 'runs commands via ssh' {
+    It 'runs commands via ssh, container with pubkey as envvar' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
         $exitCode | Should -Be 0
         $stdout | Should -Match 'f00'
@@ -190,7 +190,7 @@ Describe "[$global:IMAGE_TAG] create agent container like docker-plugin with '$g
         Is-ContainerRunning $global:CONTAINERNAME | Should -BeTrue
     }
 
-    It 'runs commands via ssh' {
+    It 'runs commands via ssh, container like docker-plugin' {
         $exitCode, $stdout, $stderr = Run-ThruSSH $global:CONTAINERNAME "$global:PRIVATE_SSH_KEY" "$global:CONTAINERSHELL -NoLogo -C `"Write-Host 'f00'`""
         $exitCode | Should -Be 0
         $stdout | Should -Match 'f00'
