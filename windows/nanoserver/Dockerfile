@@ -45,6 +45,7 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
 ARG JAVA_HOME
+ARG PSSRC="C:\Program Files\PowerShell"
 ENV PSHOME="C:\Program Files\PowerShell\7"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 
@@ -52,7 +53,7 @@ ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
 COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
 COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
-COPY --from=pwsh-source ["C:/Program Files/PowerShell/7", $PSHOME]
+COPY --from=pwsh-source $PSSRC $PSHOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
