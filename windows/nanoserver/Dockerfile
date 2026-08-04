@@ -67,6 +67,7 @@ USER ContainerAdministrator
 
 # Debug
 RUN Get-ChildItem -Path 'C:' -Filter pwsh.exe -Recurse -ErrorAction SilentlyContinue
+RUN $PSVersionTable
 
 # Backward compatibility with version <= 5.x: create a symlink to the "new" JAVA_HOME
 RUN $javaMajorVersion = $env:JAVA_HOME.Substring($env:JAVA_HOME.Length - 2); `
