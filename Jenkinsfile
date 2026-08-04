@@ -102,7 +102,7 @@ def parallelStages = [failFast: false]
                                 if (isUnix()) {
                                     sh 'make test'
                                 } else {
-                                    powershell '& ./build.ps1 test -TestDebug verbose'
+                                    powershell '& ./build.ps1 test -TestsDebug verbose'
                                 }
                                 junit 'target/**/junit-results*.xml'
                             }
