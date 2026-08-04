@@ -132,7 +132,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('') ; `
     Add-Content -Path "C:\ProgramData\ssh\sshd_config" -Value ('ForceCommand "{0}\pwsh.exe" -NoLogo -NoProfile' -f $env:PSHOME) ; `
     New-Item -Path HKLM:\SOFTWARE -Name OpenSSH -Force | Out-Null ; `
-    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value 'C:\Program Files\Powershell\pwsh.exe' -PropertyType string -Force | Out-Null ; `
+    New-ItemProperty -Path HKLM:\SOFTWARE\OpenSSH -Name DefaultShell -Value ('{0}\pwsh.exe' -f $env:PSHOME) -PropertyType string -Force | Out-Null ; `
     Remove-Item -Path "C:\ProgramData\ssh\ssh_host*_key*"
 
 COPY CreateProfile.psm1 C:/
