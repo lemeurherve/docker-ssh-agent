@@ -78,9 +78,7 @@ RUN [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tl
     Remove-Item mingit.zip -Force
 
 # Add java & git to PATH
-ENV ProgramFiles="C:\Program Files"
-ENV WindowsPATH="C:\Windows\system32;C:\Windows"
-ENV PATH="${WindowsPATH};${ProgramFiles}\PowerShell;${JAVA_HOME}\bin;C:\mingit\cmd"
+ENV PATH="C:\Windows\system32;C:\Windows;C:\Program Files;${PSHOME};${JAVA_HOME}\bin;C:\mingit\cmd"
 
 # Install git-lfs
 ARG GIT_LFS_VERSION=3.7.1
