@@ -45,7 +45,7 @@ FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
 ARG JAVA_HOME
-ENV PSHOME="C:\Program Files\PowerShell"
+ENV PSHOME="C:\Program Files\PowerShell\7"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
