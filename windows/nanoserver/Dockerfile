@@ -42,11 +42,11 @@ RUN New-Item -ItemType Directory -Path $env:jdkTemp | Out-Null ; `
 
 # # TODO: try out older pwsh version not introducing `-ProgressAction`, making `-p` ambiguous between this new function and `-PipelineVariable`
 # # and thus failing with -Command in ENTRYPOINT, making pwsh parses args, while -File doesn't
-# ARG POWERSHELL_VERSION=7.2.24
-ARG POWERSHELL_VERSION=7.5.4
+# ARG PWSH_VERSION=7.2.24
+ARG PWSH_VERSION=7.5.4
 ENV PSTMP="C:\pwsh"
 RUN Invoke-WebRequest `
-      -Uri "https://github.com/PowerShell/PowerShell/releases/download/v$env:POWERSHELL_VERSION/PowerShell-$env:POWERSHELL_VERSION-win-x64.zip" `
+      -Uri "https://github.com/PowerShell/PowerShell/releases/download/v$env:PWSH_VERSION/PowerShell-$env:PWSH_VERSION-win-x64.zip" `
       -OutFile "$env:TEMP\pwsh.zip" ; `
     New-Item -ItemType Directory -Path "$env:PSTMP" -Force | Out-Null ; `
     Expand-Archive "$env:TEMP\pwsh.zip" "$env:PSTMP" ; `
