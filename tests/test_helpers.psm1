@@ -150,13 +150,20 @@ function Get-ContainerDiagnostics($container) {
 
     Write-Host "--- docker logs (last 50 lines) ---"
     # --tail avoids blocking on Get-Content -Wait in setup-sshd.ps1
-    Run-Program 'docker' "logs --tail 50 $container" | ForEach-Object { Write-Host $_ }
+    $exitCode, $stdout, $stderr = Run-Program 'docker' "logs --tail 50 $container"
+    Write-Host $stdout
+    if ($stderr) { Write-Host $stderr }
 
     Write-Host "--- sshd service status ---"
-    Run-Program 'docker.exe' "exec $container pwsh.exe -NoLogo -C `"Get-Service sshd -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType | ConvertTo-Json`"" | ForEach-Object { Write-Host $_ }
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $container pwsh.exe -NoLogo -C `"Get-Service sshd -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType | ConvertTo-Json`""
+    Write-Host $stdout
+    if ($stderr) { Write-Host $stderr }
+
 
     Write-Host "--- sshd.log ---"
-    Run-Program 'docker.exe' "exec $container pwsh.exe -NoLogo -C `"Get-Content C:\ProgramData\ssh\logs\sshd.log -ErrorAction SilentlyContinue | Select-Object -Last 30`"" | ForEach-Object { Write-Host $_ }
+    $exitCode, $stdout, $stderr = Run-Program 'docker.exe' "exec $container pwsh.exe -NoLogo -C `"Get-Content C:\ProgramData\ssh\logs\sshd.log -ErrorAction SilentlyContinue | Select-Object -Last 30`""
+    Write-Host $stdout
+    if ($stderr) { Write-Host $stderr }
 
     Write-Host "=== END DIAGNOSTICS ==="
 }
