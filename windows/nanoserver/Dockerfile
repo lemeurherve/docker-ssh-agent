@@ -24,7 +24,7 @@
 
 ARG WINDOWS_VERSION_TAG
 ARG TOOLS_WINDOWS_VERSION
-FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-core
+FROM mcr.microsoft.com/windows/servercore:"${WINDOWS_VERSION_TAG}" AS jdk-pwsh
 
 # $ProgressPreference: https://github.com/PowerShell/PowerShell/issues/2138#issuecomment-251261324
 SHELL ["powershell.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
@@ -40,20 +40,27 @@ RUN New-Item -ItemType Directory -Path $env:jdkTemp | Out-Null ; `
     Move-Item -Path $expandedDir.FullName -Destination $env:JAVA_HOME -Force ; `
     Remove-Item -Path $env:jdkTemp -Recurse | Out-Null
 
-FROM mcr.microsoft.com/powershell:nanoserver-"${TOOLS_WINDOWS_VERSION}" AS pwsh-source
+ARG POWERSHELL_VERSION=7.5.4
+ENV PSTMP="C:\pwsh"
+RUN Invoke-WebRequest `
+      -Uri "https://github.com/PowerShell/PowerShell/releases/download/v$env:POWERSHELL_VERSION/PowerShell-$env:POWERSHELL_VERSION-win-x64.zip" `
+      -OutFile "$env:TEMP\pwsh.zip" ; `
+    New-Item -ItemType Directory -Path "$env:PSTMP" -Force | Out-Null ; `
+    Expand-Archive "$env:TEMP\pwsh.zip" "$env:PSTMP" ; `
+    Remove-Item "$env:TEMP\pwsh.zip"
 
 FROM mcr.microsoft.com/windows/nanoserver:"${WINDOWS_VERSION_TAG}"
 
 ARG JAVA_HOME
-ARG PSSRC="C:\Program Files\PowerShell"
+ARG PSTMP="C:\pwsh"
 ENV PSHOME="C:\Program Files\PowerShell\7"
 ENV PATH="C:\Windows\system32;C:\Windows;${PSHOME};"
 
 # The nanoserver image is nice and small, but we need a couple of things to get SSH working
-COPY --from=jdk-core /windows/system32/netapi32.dll /windows/system32/netapi32.dll
-COPY --from=jdk-core /windows/system32/whoami.exe /windows/system32/whoami.exe
-COPY --from=jdk-core $JAVA_HOME $JAVA_HOME
-COPY --from=pwsh-source $PSSRC $PSHOME
+COPY --from=jdk-pwsh /windows/system32/netapi32.dll /windows/system32/netapi32.dll
+COPY --from=jdk-pwsh /windows/system32/whoami.exe /windows/system32/whoami.exe
+COPY --from=jdk-pwsh $JAVA_HOME $JAVA_HOME
+COPY --from=jdk-pwsh $PSTMP $PSHOME
 
 SHELL ["pwsh.exe", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 USER ContainerAdministrator
