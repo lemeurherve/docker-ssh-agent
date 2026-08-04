@@ -40,6 +40,9 @@ RUN New-Item -ItemType Directory -Path $env:jdkTemp | Out-Null ; `
     Move-Item -Path $expandedDir.FullName -Destination $env:JAVA_HOME -Force ; `
     Remove-Item -Path $env:jdkTemp -Recurse | Out-Null
 
+# # TODO: try out older pwsh version not introducing `-ProgressAction`, making `-p` ambiguous between this new function and `-PipelineVariable`
+# # and thus failing with -Command in ENTRYPOINT, making pwsh parses args, while -File doesn't
+# ARG POWERSHELL_VERSION=7.2.24
 ARG POWERSHELL_VERSION=7.5.4
 ENV PSTMP="C:\pwsh"
 RUN Invoke-WebRequest `
