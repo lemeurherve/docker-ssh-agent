@@ -102,6 +102,14 @@ if(![System.String]::IsNullOrWhiteSpace($Cmd)) {
 
 Start-Service sshd
 
+# Wait for sshd to be ready (host key generation can take several seconds)
+$retries = 0
+while ($retries -lt 30) {
+    if ((Get-Service sshd).Status -eq 'Running') { break }
+    Start-Sleep -Seconds 1
+    $retries++
+}
+
 # dump network information
 ipconfig
 netstat -a
