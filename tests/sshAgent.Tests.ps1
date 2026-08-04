@@ -120,19 +120,13 @@ Describe "[$global:IMAGE_TAG] image has tools with proper versions and in the PA
         $exitCode | Should -Be 0
 
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`$version = java -version 2>&1 ; Write-Host `$version`""
-        $r = [regex] "^openjdk version `"(?<major>\d+)"
-        $m = $r.Match($stdout)
-        $m | Should -Not -Be $null
-        $m.Groups['major'].ToString() | Should -Be "$global:JAVAMAJORVERSION"
+        $stdout.Trim() | Should -Match "^openjdk version `"$global:JAVAMAJORVERSION"
     }
 
     It 'has git-lfs (and thus git) installed and in the path' {
         $exitCode, $stdout, $stderr = Run-Program 'docker' "exec $global:CONTAINERNAME $global:CONTAINERSHELL -C `"`& git lfs env`""
         $exitCode | Should -Be 0
-        $r = [regex] "^git-lfs/(?<version>\d+\.\d+\.\d+)"
-        $m = $r.Match($stdout)
-        $m | Should -Not -Be $null
-        $m.Groups['version'].ToString() | Should -Be "$global:GITLFSVERSION"
+        $stdout.Trim() | Should -Match "^git-lfs/$([regex]::Escape($global:GITLFSVERSION))"
     }
 
     # TODO: install pwsh in windowsservercore images too
