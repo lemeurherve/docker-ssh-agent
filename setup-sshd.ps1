@@ -81,6 +81,7 @@ while($null -ne $knownHostKeyVar) {
     $knownHostKeyVar = Get-ChildItem env: -Name "JENKINS_AGENT_SSH_KNOWNHOST_$index"
 }
 
+# TODO: restore (?)
 # ensure variables passed to docker container are also exposed to ssh sessions
 # skip PATH (managed by Windows), quote values, filter safe names
 Get-ChildItem env: | 
