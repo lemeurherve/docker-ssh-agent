@@ -34,7 +34,18 @@ ARG jdkTemp="C:\jdktemp"
 ARG localArchive="${jdkTemp}\jdk.zip"
 RUN New-Item -ItemType Directory -Path $env:jdkTemp | Out-Null ; `
     Invoke-WebRequest $env:JAVA_ZIP_URL -OutFile $env:localArchive ; `
-    Expand-Archive -Path $env:localArchive -DestinationPath $env:jdkTemp ; `
+    Add-Type -AssemblyName System.IO.Compression.FileSystem ; `
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($env:localArchive) ; `
+    $zip.Entries | Where-Object { $_.Name -ne 'NUL' } | ForEach-Object { `
+        $dest = [System.IO.Path]::Combine($env:jdkTemp, $_.FullName) ; `
+        if ($_.FullName.EndsWith('/')) { `
+            New-Item -ItemType Directory -Path $dest -Force | Out-Null `
+        } else { `
+            New-Item -ItemType Directory -Path ([System.IO.Path]::GetDirectoryName($dest)) -Force | Out-Null ; `
+            [System.IO.Compression.ZipFileExtensions]::ExtractToFile($_, $dest, $true) `
+        } `
+    } ; `
+    $zip.Dispose() ; `
     $expandedDir = Get-ChildItem -Path $env:jdkTemp -Directory | Where-Object { $_.Name -like 'jdk*' } ; `
     Move-Item -Path $expandedDir.FullName -Destination $env:JAVA_HOME -Force ; `
     Remove-Item -Path $env:jdkTemp -Recurse | Out-Null

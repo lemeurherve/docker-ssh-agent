@@ -1,7 +1,6 @@
 Import-Module -DisableNameChecking -Force $PSScriptRoot/test_helpers.psm1
 
 $global:IMAGE_NAME = Get-EnvOrDefault 'IMAGE_NAME' '' # Ex: jenkins4eval/ssh-agent:nanoserver-ltsc2019-jdk25
-$global:JAVA_ZIP_URL = 'https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jdk_x64_windows_hotspot_25.0.3_9.zip'
 
 Write-Host "= TESTS: Preparing $global:IMAGE_NAME"
 
@@ -11,6 +10,9 @@ $global:IMAGE_TAG = $imageItems[1]
 $items = $global:IMAGE_TAG.Split('-')
 # Remove the 'jdk' prefix
 $global:JAVAMAJORVERSION = $items[2].Remove(0,3)
+
+$overrideJson = Get-Content "$PSScriptRoot\..\docker-bake.override.json" | ConvertFrom-Json
+$global:JAVA_ZIP_URL = $overrideJson.variable.jdk_installer_urls.default.windows.amd64.($global:JAVAMAJORVERSION)
 $global:WINDOWSFLAVOR = $items[0]
 $global:WINDOWSVERSIONTAG = $items[1]
 
